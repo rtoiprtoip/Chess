@@ -1,0 +1,1 @@
+Chess interface for two people
