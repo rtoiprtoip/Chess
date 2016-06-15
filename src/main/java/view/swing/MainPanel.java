@@ -4,6 +4,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
+import java.net.URL;
 
 import javax.swing.*;
 import javax.swing.border.*;
@@ -142,12 +143,21 @@ class MainPanel extends JPanel {
 		try {
 			if (string == null)
 				icon = emptyIcon;
-			else
-				icon = new ImageIcon(new ImageIcon(getClass().getResource("/icons/" + string + ".svg")).getImage()
-						.getScaledInstance(FIELD_SIZE, FIELD_SIZE, java.awt.Image.SCALE_SMOOTH));
+			else {
+				URL url = Thread.currentThread().getContextClassLoader()
+						.getResource("resources/icons/" + string + ".svg");
+				icon = new ImageIcon(Toolkit.getDefaultToolkit().getImage(url).getScaledInstance(FIELD_SIZE, FIELD_SIZE,
+						java.awt.Image.SCALE_SMOOTH));
+			}
 		} catch (NullPointerException e) {
-			System.err.println("Image for " + string + " not found");
-			icon = emptyIcon;
+			try {
+				URL url = Thread.currentThread().getContextClassLoader().getResource("icons/" + string + ".svg");
+				icon = new ImageIcon(Toolkit.getDefaultToolkit().getImage(url).getScaledInstance(FIELD_SIZE, FIELD_SIZE,
+						java.awt.Image.SCALE_SMOOTH));
+			} catch (NullPointerException e1) {
+				e1.printStackTrace();
+				icon = emptyIcon;
+			}
 		}
 
 		fields[c.getCol()][c.getRow()].setIcon(icon);
