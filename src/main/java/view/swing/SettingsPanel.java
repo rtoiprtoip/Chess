@@ -21,7 +21,7 @@ class SettingsPanel extends JPanel {
 		optionsPanel = new JPanel(new GridLayout(x, y));
 
 		optionsPanel.add(new JLabel("time per player (mm:ss):"));
-		SettingsInputField timePerPlayer = new SettingsInputField("gameTime", "00:00");
+		SettingsInputField timePerPlayer = new SettingsInputField("gameTime", "10:00");
 		timePerPlayer.setHorizontalAlignment(JTextField.CENTER);
 		optionsPanel.add(timePerPlayer);
 

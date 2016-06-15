@@ -305,6 +305,7 @@ public class Game implements Serializable {
 		}
 	}
 
+	//for testing only
 	@Deprecated
 	public void setWhoseMove(Colors color) {
 		whoseMove = color;
@@ -346,7 +347,7 @@ public class Game implements Serializable {
 
 	private Integer lastMoveWasTwoFieldPawnAdvanceAtColumn = null;
 
-	private Time gameTime = new Time();// time per one player
+	private Time gameTime = new Time(10, 0);// time per one player
 	private Time timeAdded = new Time();
 	private transient TimeCounter timeCounter = new TimeCounter();
 	private Time whiteTime = new Time(), blackTime = new Time();
