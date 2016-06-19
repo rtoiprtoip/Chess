@@ -177,6 +177,7 @@ public class SwingView implements view.View {
 	public void displayPauseScreen() {
 		mainFrame.getContentPane().remove(mainPanel);
 		mainFrame.getContentPane().add(pauseScreen);
+		mainFrame.repaint();
 		mainFrame.pack();
 	}
 
