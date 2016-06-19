@@ -49,4 +49,6 @@ public interface View {
 	void displaySettingsScreen();
 
 	void addRevertMoveListener(ActionListener actionListener);
+
+	void addLogSaver(ActionListener actionListener);
 }

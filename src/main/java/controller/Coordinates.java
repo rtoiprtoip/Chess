@@ -19,4 +19,9 @@ public class Coordinates {
 	public Coordinates plus(Coordinates dir) {
 		return new Coordinates(col + dir.col, row + dir.row);
 	}
+
+	@Override
+	public String toString() {
+		return new Character((char) ('a' - 1 + col)).toString() + row;
+	}
 }

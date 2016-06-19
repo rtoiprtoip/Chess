@@ -21,8 +21,8 @@ class MainPanel extends JPanel {
 	Field[][] fields;
 
 	private JToolBar toolbar;
-	JButton settingsButton, newGameButton, loadButton, saveButton, pauseButton, endGameButton, legalStuffButton,
-			revertMoveButton;
+	JButton settingsButton, newGameButton, loadButton, saveButton, saveLogButton, pauseButton, endGameButton,
+			legalStuffButton, revertMoveButton;
 
 	private JPanel clocks;
 	JLabel whiteTimeDisplayer, blackTimeDisplayer;
@@ -78,6 +78,9 @@ class MainPanel extends JPanel {
 
 		saveButton = new JButton("Save");
 		toolbar.add(saveButton);
+
+		saveLogButton = new JButton("Save log");
+		toolbar.add(saveLogButton);
 
 		toolbar.addSeparator();
 

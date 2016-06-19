@@ -281,4 +281,9 @@ public class SwingView implements view.View {
 		mainPanel.revertMoveButton.addActionListener(actionListener);
 	}
 
+	@Override
+	public void addLogSaver(ActionListener actionListener) {
+		mainPanel.saveLogButton.addActionListener(actionListener);
+	}
+
 }

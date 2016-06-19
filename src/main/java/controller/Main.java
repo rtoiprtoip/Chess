@@ -58,8 +58,7 @@ public class Main {
 			public void actionPerformed(ActionEvent e) {
 				getModel().newGame();
 				updateChessboard();
-				moveHistory = new MoveHistory();
-				moveHistory.push(model);
+				moveHistory = new MoveHistory(model);
 				getModel().startOrResume();
 			}
 		});
@@ -113,6 +112,25 @@ public class Main {
 			}
 		});
 
+		view.addLogSaver(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				File outputFile = view.getFileToSaveIn();
+				if (outputFile == null) {
+					System.err.println("Save failed");
+					return;
+				}
+
+				System.err.println("Saving");
+				try (PrintWriter writer = new PrintWriter(outputFile)) {
+					moveHistory.getMoveLog().stream().forEach((x) -> writer.println(x));
+				} catch (IOException i) {
+					i.printStackTrace();
+				}
+			}
+		});
+
 		view.addPauseListener(new ActionListener() {
 
 			@Override
@@ -162,7 +180,7 @@ public class Main {
 								getModel().move(moveFrom, moveTo);
 								view.move(moveFrom, moveTo);
 
-								moveHistory.push(model);
+								moveHistory.push(model, moveFrom, moveTo);
 								System.err.println(moveFrom + "-" + moveTo);
 
 							}
@@ -173,21 +191,21 @@ public class Main {
 							promotionChoice = (color + "_" + promotionChoice).toLowerCase();
 							view.promote(moveFrom, moveTo, promotionChoice);
 
-							moveHistory.push(model);
+							moveHistory.push(model, moveFrom, moveTo, promotionChoice);
 							System.err.println(moveFrom + "-" + moveTo);
 
 						} catch (CastlingException e) {
 							getModel().castle(moveFrom, moveTo);
 							view.castle(moveFrom, moveTo);
 
-							moveHistory.push(model);
+							moveHistory.push(model, moveFrom, moveTo);
 							System.err.println(moveFrom + "-" + moveTo);
 
 						} catch (EnPassantException e) {
 							getModel().enPassant(moveFrom, moveTo);
 							view.enPassant(moveFrom, moveTo);
 
-							moveHistory.push(model);
+							moveHistory.push(model, moveFrom, moveTo);
 							System.err.println(moveFrom + "-" + moveTo);
 
 						} catch (SpecialMoveException e) {
