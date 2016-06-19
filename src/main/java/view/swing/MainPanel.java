@@ -21,7 +21,8 @@ class MainPanel extends JPanel {
 	Field[][] fields;
 
 	private JToolBar toolbar;
-	JButton settingsButton, newGameButton, loadButton, saveButton, pauseButton, endGameButton, legalStuffButton;
+	JButton settingsButton, newGameButton, loadButton, saveButton, pauseButton, endGameButton, legalStuffButton,
+			revertMoveButton;
 
 	private JPanel clocks;
 	JLabel whiteTimeDisplayer, blackTimeDisplayer;
@@ -90,6 +91,11 @@ class MainPanel extends JPanel {
 
 		legalStuffButton = new JButton("Legal stuff");
 		toolbar.add(legalStuffButton);
+
+		toolbar.addSeparator();
+
+		revertMoveButton = new JButton("Revert move");
+		toolbar.add(revertMoveButton);
 	}
 
 	private void initializeBoard() {

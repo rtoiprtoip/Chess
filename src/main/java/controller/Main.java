@@ -20,6 +20,7 @@ public class Main {
 
 	static final View view = new view.swing.SwingView();
 	static Game model;
+	static MoveHistory moveHistory;
 
 	public static void main(String[] args) {
 		model = new Game();
@@ -57,6 +58,8 @@ public class Main {
 			public void actionPerformed(ActionEvent e) {
 				getModel().newGame();
 				updateChessboard();
+				moveHistory = new MoveHistory();
+				moveHistory.push(model);
 				getModel().startOrResume();
 			}
 		});
@@ -70,31 +73,21 @@ public class Main {
 					System.err.println("Load cancelled");
 					return;
 				}
-				Game loaded = null;
-				ObjectInputStream in = null;
-				FileInputStream fileIn = null;
-				try {
-					fileIn = new FileInputStream(inputFile);
-					in = new ObjectInputStream(fileIn);
-					loaded = (Game) in.readObject();
-					model = loaded;
+
+				try (FileInputStream fileInput = new FileInputStream(inputFile);
+						ObjectInputStream objIn = new ObjectInputStream(fileInput)) {
+
+					moveHistory = (MoveHistory) objIn.readObject();
+					model = moveHistory.pop();
+
 					updateChessboard();
 					model.startOrResume();
 				} catch (StreamCorruptedException s) {
 					System.out.println("File corrupted");
 				} catch (IOException i) {
 					i.printStackTrace();
-					return;
 				} catch (ClassNotFoundException c) {
 					c.printStackTrace();
-					return;
-				} finally {
-					try {
-						in.close();
-						fileIn.close();
-					} catch (IOException | NullPointerException e2) {
-						e2.printStackTrace();
-					}
 				}
 			}
 		});
@@ -106,25 +99,17 @@ public class Main {
 				File outputFile = view.getFileToSaveIn();
 				if (outputFile == null) {
 					System.err.println("Save failed");
-				} else {
-					System.err.println("Saving");
-					FileOutputStream fileOut = null;
-					ObjectOutputStream out = null;
-					try {
-						fileOut = new FileOutputStream(outputFile);
-						out = new ObjectOutputStream(fileOut);
-						out.writeObject(model);
-					} catch (IOException i) {
-						i.printStackTrace();
-					} finally {
-						try {
-							out.close();
-							fileOut.close();
-						} catch (IOException | NullPointerException e1) {
-							e1.printStackTrace();
-						}
-					}
+					return;
 				}
+
+				System.err.println("Saving");
+				try (FileOutputStream fileOut = new FileOutputStream(outputFile);
+						ObjectOutputStream objOut = new ObjectOutputStream(fileOut)) {
+					objOut.writeObject(moveHistory);
+				} catch (IOException i) {
+					i.printStackTrace();
+				}
+
 			}
 		});
 
@@ -153,6 +138,16 @@ public class Main {
 			}
 		});
 
+		view.addRevertMoveListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				model = moveHistory.pop();
+				updateChessboard();
+				model.startOrResume();
+			}
+		});
+
 		view.addMoveHandler(new BiConsumer<Coordinates, Coordinates>() {
 
 			@Override
@@ -166,7 +161,10 @@ public class Main {
 							if (moveAuthorized) {
 								getModel().move(moveFrom, moveTo);
 								view.move(moveFrom, moveTo);
+
+								moveHistory.push(model);
 								System.err.println(moveFrom + "-" + moveTo);
+
 							}
 						} catch (PromotionException e) {
 							String color = getModel().getWhoseMove().toString();
@@ -174,15 +172,24 @@ public class Main {
 							getModel().promote(moveFrom, moveTo, promotionChoice);
 							promotionChoice = (color + "_" + promotionChoice).toLowerCase();
 							view.promote(moveFrom, moveTo, promotionChoice);
+
+							moveHistory.push(model);
 							System.err.println(moveFrom + "-" + moveTo);
+
 						} catch (CastlingException e) {
 							getModel().castle(moveFrom, moveTo);
 							view.castle(moveFrom, moveTo);
+
+							moveHistory.push(model);
 							System.err.println(moveFrom + "-" + moveTo);
+
 						} catch (EnPassantException e) {
 							getModel().enPassant(moveFrom, moveTo);
 							view.enPassant(moveFrom, moveTo);
+
+							moveHistory.push(model);
 							System.err.println(moveFrom + "-" + moveTo);
+
 						} catch (SpecialMoveException e) {
 							assert false;
 						}

@@ -276,4 +276,9 @@ public class SwingView implements view.View {
 		mainFrame.pack();
 	}
 
+	@Override
+	public void addRevertMoveListener(ActionListener actionListener) {
+		mainPanel.revertMoveButton.addActionListener(actionListener);
+	}
+
 }
