@@ -11,10 +11,10 @@ class MoveHistory implements Serializable {
 	private static final long serialVersionUID = -2927187439077219768L;
 
 	// holds serialized Games
-	private Deque<byte[]> gameStateStack = new LinkedList<>();
+	private final Deque<byte[]> gameStateStack = new LinkedList<>();
 
 	@Getter
-	private LinkedList<String> moveLog = new LinkedList<>();
+	private final LinkedList<String> moveLog = new LinkedList<>();
 
 	MoveHistory(Game game) {
 		push(game, null, null);
@@ -33,9 +33,7 @@ class MoveHistory implements Serializable {
 				return (Game) objIn.readObject();
 			} catch (StreamCorruptedException s) {
 				System.out.println("File corrupted");
-			} catch (IOException e) {
-				e.printStackTrace();
-			} catch (ClassNotFoundException e) {
+			} catch (IOException | ClassNotFoundException e) {
 				e.printStackTrace();
 			}
 		}

@@ -14,13 +14,13 @@ import controller.Coordinates;
 
 public class SwingView implements view.View {
 	private JFrame mainFrame;
-	private MainPanel mainPanel;
-	private SettingsPanel settingsPanel = new SettingsPanel();;
-	private PausePanel pauseScreen = new PausePanel();
-	private LegalStuffDisplayer legalStuffPanel = new LegalStuffDisplayer();
+	private final MainPanel mainPanel;
+	private final SettingsPanel settingsPanel = new SettingsPanel();
+	private final PausePanel pauseScreen = new PausePanel();
+	private final LegalStuffDisplayer legalStuffPanel = new LegalStuffDisplayer();
 	private BiConsumer<Coordinates, Coordinates> moveConsumer;
 
-	public void createAndShowGUI() {
+	private void createAndShowGUI() {
 		mainFrame = new JFrame("Chess");
 		mainFrame.setVisible(true);
 		mainFrame.setSize(500, 500);
@@ -33,35 +33,11 @@ public class SwingView implements view.View {
 		pauseScreen.setPreferredSize(mainFrame.getContentPane().getSize());
 		legalStuffPanel.setPreferredSize(mainFrame.getContentPane().getSize());
 
-		mainPanel.settingsButton.addActionListener(new ActionListener() {
+		mainPanel.settingsButton.addActionListener(e -> displaySettingsScreen());
+		mainPanel.pauseButton.addActionListener(e -> displayPauseScreen());
+		mainPanel.legalStuffButton.addActionListener(e -> displayLegalStuff());
 
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				displaySettingsScreen();
-			}
-		});
-		mainPanel.pauseButton.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				displayPauseScreen();
-			}
-		});
-		mainPanel.legalStuffButton.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				displayLegalStuff();
-			}
-		});
-
-		ActionListener mainViewDisplayer = new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				displayMainView();
-			}
-		};
+		ActionListener mainViewDisplayer = e -> displayMainView();
 
 		settingsPanel.okButton.addActionListener(mainViewDisplayer);
 		pauseScreen.resumeButton.addActionListener(mainViewDisplayer);
@@ -72,11 +48,7 @@ public class SwingView implements view.View {
 
 	public SwingView() {
 		mainPanel = new MainPanel();
-		SwingUtilities.invokeLater(new Runnable() {
-			public void run() {
-				createAndShowGUI();
-			}
-		});
+		SwingUtilities.invokeLater(this::createAndShowGUI);
 	}
 
 	private void addClicksHandlerToFields() {
@@ -106,13 +78,13 @@ public class SwingView implements view.View {
 				mainPanel.fields[i][j].addActionListener(clicksHandler);
 	}
 
-	public void displayLegalStuff() {
+	private void displayLegalStuff() {
 		mainFrame.getContentPane().remove(mainPanel);
 		mainFrame.getContentPane().add(legalStuffPanel);
 		mainFrame.pack();
 	}
 
-	public void displayMainView() {
+	private void displayMainView() {
 		mainFrame.getContentPane().removeAll();
 		mainFrame.getContentPane().add(mainPanel);
 		mainFrame.repaint();
@@ -174,7 +146,7 @@ public class SwingView implements view.View {
 		mainPanel.moveIcon(arg0, arg1);
 	}
 
-	public void displayPauseScreen() {
+	private void displayPauseScreen() {
 		mainFrame.getContentPane().remove(mainPanel);
 		mainFrame.getContentPane().add(pauseScreen);
 		mainFrame.repaint();
@@ -267,8 +239,7 @@ public class SwingView implements view.View {
 		return null;
 	}
 
-	@Override
-	public void displaySettingsScreen() {
+	private void displaySettingsScreen() {
 		settingsPanel.setPreferredSize(mainFrame.getContentPane().getSize());
 		mainFrame.getContentPane().remove(mainPanel);
 		mainFrame.getContentPane().add(settingsPanel);

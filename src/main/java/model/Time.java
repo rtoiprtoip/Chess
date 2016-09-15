@@ -7,7 +7,7 @@ class Time implements java.io.Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = -2030169515375322789L;
-	Duration d;
+	private Duration d;
 	static final Duration precision = Duration.ofMillis(10);
 
 	Time(int minutes, int seconds) {
@@ -22,7 +22,7 @@ class Time implements java.io.Serializable {
 		this(other.d);
 	}
 
-	Time(Duration d) {
+	private Time(Duration d) {
 		this.d = d;
 	}
 

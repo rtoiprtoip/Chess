@@ -17,11 +17,9 @@ final class Queen extends Piece {
 	@Override
 	public boolean performActualCheckIfItCanMoveThere(Coordinates from, Coordinates to, boolean capturing) {
 		int x1 = from.getCol(), x2 = to.getCol(), y1 = from.getRow(), y2 = to.getRow();
-		if (!(Math.abs(x1 - x2) == Math.abs(y1 - y2) || x1 == x2 || y1 == y2))
-			return false;
+        return Math.abs(x1 - x2) == Math.abs(y1 - y2) || x1 == x2 || y1 == y2;
 
-		return true;
-	}
+    }
 
 	@Override
 	public String toString() {

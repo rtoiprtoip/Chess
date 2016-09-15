@@ -8,11 +8,11 @@ import javax.swing.*;
 
 @SuppressWarnings("serial")
 class SettingsPanel extends JPanel {
-	private JPanel optionsPanel;
+	private final JPanel optionsPanel;
 	final JButton okButton;
 
-	private PropertyChangeSupport pcs = new PropertyChangeSupport(this);
-	private VetoableChangeSupport vcs = new VetoableChangeSupport(this);
+	private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
+	private final VetoableChangeSupport vcs = new VetoableChangeSupport(this);
 
 	SettingsPanel() {
 		super(new BorderLayout());
@@ -52,7 +52,7 @@ class SettingsPanel extends JPanel {
 	private class SettingsInputField extends JTextField implements FocusListener {
 
 		private String propertyName = "";
-		private String value = "";
+		private final String value = "";
 
 		public SettingsInputField(String propertyName, String defaultText) {
 			super(defaultText);

@@ -46,8 +46,6 @@ public interface View {
 
 	File getFileToSaveIn();
 
-	void displaySettingsScreen();
-
 	void addRevertMoveListener(ActionListener actionListener);
 
 	void addLogSaver(ActionListener actionListener);

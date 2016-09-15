@@ -1,12 +1,10 @@
 package controller;
 
-import java.awt.event.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyVetoException;
 import java.beans.VetoableChangeListener;
 import java.io.*;
-import java.util.function.BiConsumer;
 
 import view.View;
 import model.Game;
@@ -18,9 +16,9 @@ import model.EnPassantException;
 
 public class Main {
 
-	static final View view = new view.swing.SwingView();
-	static Game model;
-	static MoveHistory moveHistory;
+	private static final View view = new view.swing.SwingView();
+	private static Game model;
+	private static MoveHistory moveHistory;
 
 	public static void main(String[] args) {
 		model = new Game();
@@ -44,178 +42,123 @@ public class Main {
 		timeCounter.setDaemon(true);
 		timeCounter.start();
 
-		view.addSettingsListeners(new ActionListener() {
+		view.addSettingsListeners(e -> getModel().setPaused(!getModel().isPaused()), settingsHandler, settingsHandler);
 
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				getModel().setPaused(!getModel().isPaused());
-			}
-		}, settingsHandler, settingsHandler);
+		view.addNewGameStarter(e -> {
+            getModel().newGame();
+            updateChessboard();
+            moveHistory = new MoveHistory(model);
+            getModel().startOrResume();
+        });
 
-		view.addNewGameStarter(new ActionListener() {
+		view.addGameLoader(e -> {
+            File inputFile = view.getFileToReadFrom();
+            if (inputFile == null) {
+                System.err.println("Load cancelled");
+                return;
+            }
 
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				getModel().newGame();
-				updateChessboard();
-				moveHistory = new MoveHistory(model);
-				getModel().startOrResume();
-			}
+            try (FileInputStream fileInput = new FileInputStream(inputFile);
+                    ObjectInputStream objIn = new ObjectInputStream(fileInput)) {
+
+                moveHistory = (MoveHistory) objIn.readObject();
+                model = moveHistory.pop();
+
+                updateChessboard();
+                model.startOrResume();
+            } catch (StreamCorruptedException s) {
+                System.out.println("File corrupted");
+            } catch (IOException | ClassNotFoundException i) {
+                i.printStackTrace();
+            }
 		});
 
-		view.addGameLoader(new ActionListener() {
+		view.addGameSaver(e -> {
+            File outputFile = view.getFileToSaveIn();
+            if (outputFile == null) {
+                System.err.println("Save failed");
+                return;
+            }
 
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				File inputFile = view.getFileToReadFrom();
-				if (inputFile == null) {
-					System.err.println("Load cancelled");
-					return;
-				}
+            System.err.println("Saving");
+            try (FileOutputStream fileOut = new FileOutputStream(outputFile);
+                    ObjectOutputStream objOut = new ObjectOutputStream(fileOut)) {
+                objOut.writeObject(moveHistory);
+            } catch (IOException i) {
+                i.printStackTrace();
+            }
 
-				try (FileInputStream fileInput = new FileInputStream(inputFile);
-						ObjectInputStream objIn = new ObjectInputStream(fileInput)) {
+        });
 
-					moveHistory = (MoveHistory) objIn.readObject();
-					model = moveHistory.pop();
+		view.addLogSaver(e -> {
+            File outputFile = view.getFileToSaveIn();
+            if (outputFile == null) {
+                System.err.println("Save failed");
+                return;
+            }
 
-					updateChessboard();
-					model.startOrResume();
-				} catch (StreamCorruptedException s) {
-					System.out.println("File corrupted");
-				} catch (IOException i) {
-					i.printStackTrace();
-				} catch (ClassNotFoundException c) {
-					c.printStackTrace();
-				}
-			}
-		});
+            System.err.println("Saving");
+            try (PrintWriter writer = new PrintWriter(outputFile)) {
+                moveHistory.getMoveLog().forEach(writer::println);
+            } catch (IOException i) {
+                i.printStackTrace();
+            }
+        });
 
-		view.addGameSaver(new ActionListener() {
+		view.addPauseListener(e -> getModel().setPaused(!getModel().isPaused()));
 
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				File outputFile = view.getFileToSaveIn();
-				if (outputFile == null) {
-					System.err.println("Save failed");
-					return;
-				}
+		view.addEndGameListener(e -> {
+            getModel().endGame();
+            view.clearGUI();
+        });
 
-				System.err.println("Saving");
-				try (FileOutputStream fileOut = new FileOutputStream(outputFile);
-						ObjectOutputStream objOut = new ObjectOutputStream(fileOut)) {
-					objOut.writeObject(moveHistory);
-				} catch (IOException i) {
-					i.printStackTrace();
-				}
+		view.addLegalStuffDisplayer(e -> getModel().setPaused(!getModel().isPaused()));
 
-			}
-		});
+		view.addRevertMoveListener(e -> {
+            model = moveHistory.pop();
+            updateChessboard();
+            model.startOrResume();
+        });
 
-		view.addLogSaver(new ActionListener() {
+		view.addMoveHandler((moveFrom, moveTo) -> new Thread(() -> {
+try {
+boolean moveAuthorized = getModel().isThisValidMove(moveFrom, moveTo);
+if (moveAuthorized) {
+getModel().move(moveFrom, moveTo);
+view.move(moveFrom, moveTo);
 
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				File outputFile = view.getFileToSaveIn();
-				if (outputFile == null) {
-					System.err.println("Save failed");
-					return;
-				}
+moveHistory.push(model, moveFrom, moveTo);
+System.err.println(moveFrom + "-" + moveTo);
 
-				System.err.println("Saving");
-				try (PrintWriter writer = new PrintWriter(outputFile)) {
-					moveHistory.getMoveLog().stream().forEach((x) -> writer.println(x));
-				} catch (IOException i) {
-					i.printStackTrace();
-				}
-			}
-		});
+}
+} catch (PromotionException e) {
+String color = getModel().getWhoseMove().toString();
+String promotionChoice = view.getPromotionChoice(color);
+getModel().promote(moveFrom, moveTo, promotionChoice);
+promotionChoice = (color + "_" + promotionChoice).toLowerCase();
+view.promote(moveFrom, moveTo, promotionChoice);
 
-		view.addPauseListener(new ActionListener() {
+moveHistory.push(model, moveFrom, moveTo, promotionChoice);
+System.err.println(moveFrom + "-" + moveTo);
 
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				getModel().setPaused(!getModel().isPaused());
-			}
-		});
+} catch (CastlingException e) {
+getModel().castle(moveFrom, moveTo);
+view.castle(moveFrom, moveTo);
 
-		view.addEndGameListener(new ActionListener() {
+moveHistory.push(model, moveFrom, moveTo);
+System.err.println(moveFrom + "-" + moveTo);
 
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				getModel().endGame();
-				view.clearGUI();
-			}
-		});
+} catch (EnPassantException e) {
+getModel().enPassant(moveFrom, moveTo);
+view.enPassant(moveFrom, moveTo);
 
-		view.addLegalStuffDisplayer(new ActionListener() {
+moveHistory.push(model, moveFrom, moveTo);
+System.err.println(moveFrom + "-" + moveTo);
 
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				getModel().setPaused(!getModel().isPaused());
-			}
-		});
-
-		view.addRevertMoveListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				model = moveHistory.pop();
-				updateChessboard();
-				model.startOrResume();
-			}
-		});
-
-		view.addMoveHandler(new BiConsumer<Coordinates, Coordinates>() {
-
-			@Override
-			public void accept(final Coordinates moveFrom, final Coordinates moveTo) {
-				new Thread(new Runnable() {
-
-					@Override
-					public void run() {
-						try {
-							boolean moveAuthorized = getModel().isThisValidMove(moveFrom, moveTo);
-							if (moveAuthorized) {
-								getModel().move(moveFrom, moveTo);
-								view.move(moveFrom, moveTo);
-
-								moveHistory.push(model, moveFrom, moveTo);
-								System.err.println(moveFrom + "-" + moveTo);
-
-							}
-						} catch (PromotionException e) {
-							String color = getModel().getWhoseMove().toString();
-							String promotionChoice = view.getPromotionChoice(color);
-							getModel().promote(moveFrom, moveTo, promotionChoice);
-							promotionChoice = (color + "_" + promotionChoice).toLowerCase();
-							view.promote(moveFrom, moveTo, promotionChoice);
-
-							moveHistory.push(model, moveFrom, moveTo, promotionChoice);
-							System.err.println(moveFrom + "-" + moveTo);
-
-						} catch (CastlingException e) {
-							getModel().castle(moveFrom, moveTo);
-							view.castle(moveFrom, moveTo);
-
-							moveHistory.push(model, moveFrom, moveTo);
-							System.err.println(moveFrom + "-" + moveTo);
-
-						} catch (EnPassantException e) {
-							getModel().enPassant(moveFrom, moveTo);
-							view.enPassant(moveFrom, moveTo);
-
-							moveHistory.push(model, moveFrom, moveTo);
-							System.err.println(moveFrom + "-" + moveTo);
-
-						} catch (SpecialMoveException e) {
-							assert false;
-						}
-					}
-				}).start();
-			}
-
-		});
+} catch (SpecialMoveException e) {
+assert false;
+}
+}).start());
 	}
 
 	private static void updateChessboard() {

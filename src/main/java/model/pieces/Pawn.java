@@ -29,10 +29,7 @@ final class Pawn extends Piece {
 			else if (y2 - y1 == direction)
 				return true;
 			else if (y2 - y1 == 2 * direction)
-				if (!hasMoved)
-					return true;
-				else
-					return false;
+                return !hasMoved;
 			else
 				return false;
 		else if (Math.abs(x1 - x2) == 1)

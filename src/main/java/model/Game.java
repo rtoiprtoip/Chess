@@ -262,7 +262,7 @@ public class Game implements Serializable {
 		Coordinates kingPos = null;
 		for (int i = 1; i <= 8; ++i)
 			for (int j = 1; j <= 8; ++j)
-				if (fields[i][j] != null && fields[i][j].isKing() && fields[i][j].getColor() == whoseMove)
+				if (fields[i][j] != null && fields[i][j].isKing() && fields[i][j].getColor() == c)
 					kingPos = new Coordinates(i, j);
 		assert kingPos != null;
 
@@ -270,7 +270,7 @@ public class Game implements Serializable {
 		for (int i = 1; i <= 8; ++i)
 			for (int j = 1; j <= 8; ++j)
 				try {
-					if (fields[i][j] != null && fields[i][j].getColor() != whoseMove
+					if (fields[i][j] != null && fields[i][j].getColor() != c
 							&& isThisValidMoveForgetCheckAndTurn(new Coordinates(i, j), kingPos))
 						return true;
 				} catch (PromotionException e) {
@@ -282,12 +282,14 @@ public class Game implements Serializable {
 	}
 
 	public String getTime(String color) {
-		if (color.equals("white"))
-			return whiteTime.toString();
-		else if (color.equals("black"))
-			return blackTime.toString();
-		else
-			throw new IllegalArgumentException();
+		switch (color) {
+			case "white":
+				return whiteTime.toString();
+			case "black":
+				return blackTime.toString();
+			default:
+				throw new IllegalArgumentException();
+		}
 	}
 
 	public void setGameTime(int minutes, int seconds) {
@@ -305,8 +307,7 @@ public class Game implements Serializable {
 		}
 	}
 
-	//for testing only
-	@Deprecated
+	@Deprecated //for testing only
 	public void setWhoseMove(Colors color) {
 		whoseMove = color;
 	}

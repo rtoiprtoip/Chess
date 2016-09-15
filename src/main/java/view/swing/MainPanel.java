@@ -1,8 +1,6 @@
 package view.swing;
 
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.net.URL;
 
@@ -172,11 +170,11 @@ class MainPanel extends JPanel {
 		fields[c.getCol()][c.getRow()].setIcon(icon);
 	}
 
-	final int NUMBER_OF_TILES_IN_CHESSBOARD_ROW = 10;
-	final int CHESSBOARD_SIZE = (int) (Toolkit.getDefaultToolkit().getScreenSize().getHeight() * 0.67);
-	final int FIELD_SIZE = CHESSBOARD_SIZE / 10;
-	final int TIME_PANEL_WIDTH = (int) (CHESSBOARD_SIZE * 0.25);
-	final Icon emptyIcon = new ImageIcon(new BufferedImage(FIELD_SIZE, FIELD_SIZE, BufferedImage.TYPE_INT_ARGB));
+	private final int NUMBER_OF_TILES_IN_CHESSBOARD_ROW = 10;
+	private final int CHESSBOARD_SIZE = (int) (Toolkit.getDefaultToolkit().getScreenSize().getHeight() * 0.67);
+	private final int FIELD_SIZE = CHESSBOARD_SIZE / 10;
+	private final int TIME_PANEL_WIDTH = (int) (CHESSBOARD_SIZE * 0.25);
+	private final Icon emptyIcon = new ImageIcon(new BufferedImage(FIELD_SIZE, FIELD_SIZE, BufferedImage.TYPE_INT_ARGB));
 
 	void moveIcon(Coordinates arg0, Coordinates arg1) {
 		fieldAt(arg1).setIcon(fieldAt(arg0).getIcon());
@@ -214,7 +212,7 @@ class MainPanel extends JPanel {
 	private class PromotionHandler extends JPanel {
 
 		volatile String choice = null;
-		String[] names = { "queen", "rook", "bishop", "knight" };
+		final String[] names = { "queen", "rook", "bishop", "knight" };
 
 		public PromotionHandler(String color) {
 
@@ -226,16 +224,12 @@ class MainPanel extends JPanel {
 						getClass().getResource(("/icons/" + color + "_" + names[i] + ".svg").toLowerCase())).getImage()
 								.getScaledInstance(FIELD_SIZE, FIELD_SIZE, java.awt.Image.SCALE_SMOOTH)));
 				final int i1 = i;
-				f.addActionListener(new ActionListener() {
-
-					@Override
-					public void actionPerformed(ActionEvent e) {
-						synchronized (PromotionHandler.this) {
-							choice = names[i1];
-							PromotionHandler.this.notifyAll();
-						}
-					}
-				});
+				f.addActionListener(e -> {
+                    synchronized (PromotionHandler.this) {
+                        choice = names[i1];
+                        PromotionHandler.this.notifyAll();
+                    }
+                });
 				f.setBackground(f.naturalColor());
 				this.add(f);
 			}

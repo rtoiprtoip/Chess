@@ -22,6 +22,6 @@ public class Coordinates {
 
 	@Override
 	public String toString() {
-		return new Character((char) ('a' - 1 + col)).toString() + row;
+		return Character.toString((char) ('a' - 1 + col)) + row;
 	}
 }

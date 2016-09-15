@@ -22,10 +22,7 @@ final class Knight extends Piece {
 		int d1 = Math.abs(x1 - x2), d2 = Math.abs(y1 - y2);
 		if (d1 == 1 && d2 == 2)
 			return true;
-		else if (d1 == 2 && d2 == 1)
-			return true;
-		else
-			return false;
+		else return d1 == 2 && d2 == 1;
 	}
 
 	@Override
