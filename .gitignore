@@ -39,6 +39,9 @@ $RECYCLE.BIN/
 .Trashes
 .VolumeIcon.icns
 
+# IntelliJ files
+*.iml
+
 # Directories potentially created on remote AFP share
 .AppleDB
 .AppleDesktop
