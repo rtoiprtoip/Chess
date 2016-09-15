@@ -148,7 +148,7 @@ public class Main {
 			}
 		});
 
-		view.addLegalStuffdisplayer(new ActionListener() {
+		view.addLegalStuffDisplayer(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -257,7 +257,7 @@ public class Main {
 					throw new PropertyVetoException("Too many seconds!", evt);
 			} else if (evt.getPropertyName().equals("timeAdded")) {
 				if (!((String) evt.getNewValue()).matches("[0-9]+"))
-					throw new PropertyVetoException("invaid format", evt);
+					throw new PropertyVetoException("invalid format", evt);
 			} else
 				assert false;
 		}

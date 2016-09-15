@@ -28,7 +28,7 @@ public abstract class Piece implements Serializable {
 	 * @param to
 	 *            Goal of the piece
 	 * @return Path on the board, if the piece could move there on an 'empty'
-	 *         board, i.e. it douesn't check for any other pieces that would
+	 *         board, i.e. it doesn't check for any other pieces that would
 	 *         stand in the way (but it does check if something is on the ''to''
 	 *         field), or if this move would expose king to check. If the piece
 	 *         can't move there, it returns null.

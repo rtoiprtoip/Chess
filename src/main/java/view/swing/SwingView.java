@@ -154,7 +154,7 @@ public class SwingView implements view.View {
 	}
 
 	@Override
-	public void addLegalStuffdisplayer(ActionListener actionListener) {
+	public void addLegalStuffDisplayer(ActionListener actionListener) {
 		mainPanel.legalStuffButton.addActionListener(actionListener);
 		legalStuffPanel.okButton.addActionListener(actionListener);
 	}

@@ -22,7 +22,7 @@ public interface View {
 
 	void addEndGameListener(ActionListener actionListener);
 
-	void addLegalStuffdisplayer(ActionListener actionListener);
+	void addLegalStuffDisplayer(ActionListener actionListener);
 
 	void setIconAt(Coordinates c, String pieceName);
 
