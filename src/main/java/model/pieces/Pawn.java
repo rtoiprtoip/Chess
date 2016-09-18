@@ -1,17 +1,16 @@
 package model.pieces;
 
 import controller.Coordinates;
+import lombok.EqualsAndHashCode;
 import model.Colors;
 import model.EnPassantException;
 import model.PromotionException;
 import model.SpecialMoveException;
 import model.TwoFieldsPawnAdvanceException;
 
+@EqualsAndHashCode(callSuper = true)
 final class Pawn extends Piece {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -7210606552037995958L;
 
 	Pawn(Colors color) {

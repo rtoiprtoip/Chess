@@ -1,13 +1,12 @@
 package model.pieces;
 
 import controller.Coordinates;
+import lombok.EqualsAndHashCode;
 import model.Colors;
 
+@EqualsAndHashCode(callSuper = true)
 final class Rook extends Piece {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 5200867402070785492L;
 
 	Rook(Colors color) {

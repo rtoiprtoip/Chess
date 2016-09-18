@@ -94,7 +94,4 @@ public abstract class Piece implements Serializable {
 		}
 	}
 
-	// for the @HashCodeAndEquals to work properly
-	private Class<? extends Piece> cls = getClass();
-
 }
