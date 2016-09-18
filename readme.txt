@@ -1,6 +1,6 @@
 Chess interface for two people
 
-The project depends on Lombok - see projectlombok.org.
+To start the application, run controller.Main class.
 
 If you don't want to build the application, an executable .jar file is available:
 drive.google.com/file/d/0B-Zgoy0KySiwa0NBTmhFMkJmaFE/view?usp=sharing
