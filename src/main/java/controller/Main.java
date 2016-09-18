@@ -193,13 +193,10 @@ public class Main {
         public void vetoableChange(PropertyChangeEvent evt) throws PropertyVetoException {
             String newVal = ((String) evt.getNewValue()).trim();
             if (evt.getPropertyName().equals("gameTime")) {
-                if (!newVal.matches("[0-9]+:[0-9][0-9]"))
+                if (!newVal.matches("\\d+:[0-5]\\d"))
                     throw new PropertyVetoException("Invalid format, use mm:ss", evt);
-                String[] numbers = newVal.split(":");
-                if (Integer.parseInt(numbers[1]) > 59)
-                    throw new PropertyVetoException("Too many seconds!", evt);
             } else if (evt.getPropertyName().equals("timeAdded")) {
-                if (!((String) evt.getNewValue()).matches("[0-9]+"))
+                if (!((String) evt.getNewValue()).trim().matches("\\d+"))
                     throw new PropertyVetoException("invalid format", evt);
             } else
                 assert false;
