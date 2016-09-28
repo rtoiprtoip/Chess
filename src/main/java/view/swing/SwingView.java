@@ -1,6 +1,10 @@
 package view.swing;
 
-import java.awt.Color;
+import controller.Coordinates;
+import org.springframework.stereotype.Service;
+
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeListener;
@@ -8,10 +12,7 @@ import java.beans.VetoableChangeListener;
 import java.io.File;
 import java.util.function.BiConsumer;
 
-import javax.swing.*;
-
-import controller.Coordinates;
-
+@Service
 public class SwingView implements view.View {
 	private JFrame mainFrame;
 	private final MainPanel mainPanel;

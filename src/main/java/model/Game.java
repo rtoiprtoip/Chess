@@ -1,12 +1,15 @@
 package model;
 
-import java.io.Serializable;
-import java.util.*;
-
 import controller.Coordinates;
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
 import model.pieces.Piece;
+import org.springframework.stereotype.Service;
 
+import java.io.Serializable;
+import java.util.List;
+
+@Service
 public class Game implements Serializable {
 
     public Game() {
