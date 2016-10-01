@@ -1,10 +1,12 @@
 package controller;
 
-import java.io.*;
-import java.util.*;
-
 import lombok.Getter;
-import model.Game;
+import model.GameLogic;
+
+import java.io.*;
+import java.util.Deque;
+import java.util.LinkedList;
+import java.util.NoSuchElementException;
 
 class MoveHistory implements Serializable {
 
@@ -16,12 +18,12 @@ class MoveHistory implements Serializable {
 	@Getter
 	private final LinkedList<String> moveLog = new LinkedList<>();
 
-	MoveHistory(Game game) {
+	MoveHistory(GameLogic game) {
 		push(game, null, null);
 		moveLog.removeLast();
 	}
 
-	Game pop() {
+	GameLogic pop() {
 		if (gameStateStack.size() < 2)
 			throw new NoSuchElementException();
 		else {
@@ -30,7 +32,7 @@ class MoveHistory implements Serializable {
 			byte[] arr = gameStateStack.peekLast();
 			try (ByteArrayInputStream byteArrStream = new ByteArrayInputStream(arr);
 					ObjectInputStream objIn = new ObjectInputStream(byteArrStream)) {
-				return (Game) objIn.readObject();
+				return (GameLogic) objIn.readObject();
 			} catch (StreamCorruptedException s) {
 				System.out.println("File corrupted");
 			} catch (IOException | ClassNotFoundException e) {
@@ -40,11 +42,11 @@ class MoveHistory implements Serializable {
 		return null;
 	}
 
-	void push(Game gameState, Coordinates moveFrom, Coordinates moveTo) {
+	void push(GameLogic gameState, Coordinates moveFrom, Coordinates moveTo) {
 		push(gameState, moveFrom, moveTo, null);
 	}
 
-	void push(Game gameState, Coordinates moveFrom, Coordinates moveTo, String promotionChoice) {
+	void push(GameLogic gameState, Coordinates moveFrom, Coordinates moveTo, String promotionChoice) {
 		try (ByteArrayOutputStream byteArrStream = new ByteArrayOutputStream();
 				ObjectOutputStream objOutStream = new ObjectOutputStream(byteArrStream)) {
 			objOutStream.writeObject(gameState);

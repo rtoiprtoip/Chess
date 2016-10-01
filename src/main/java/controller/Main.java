@@ -1,8 +1,9 @@
 package controller;
 
 import lombok.NonNull;
-import model.*;
-import model.pieces.Piece;
+import model.GameLogic;
+import model.impl.*;
+import model.impl.pieces.Piece;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.annotation.ComponentScan;
@@ -19,10 +20,10 @@ import java.io.*;
 public class Main {
     
     private final View view;
-    private final Game model;
+    private final GameLogic model;
     private static MoveHistory moveHistory;
     
-    Main(@NonNull Game model1, @NonNull View view1) {
+    Main(@NonNull GameLogic model1, @NonNull View view1) {
         this.model = model1;
         this.view = view1;
         
@@ -51,7 +52,8 @@ public class Main {
         view.addNewGameStarter(e -> {
             model.newGame();
             updateChessboard();
-            moveHistory = new MoveHistory(model);
+            //TODO
+            //moveHistory = new MoveHistory(model);
             model.startOrResume();
         });
         
@@ -133,7 +135,8 @@ public class Main {
                     model.move(moveFrom, moveTo);
                     view.move(moveFrom, moveTo);
                     
-                    moveHistory.push(model, moveFrom, moveTo);
+                    //TODO
+                    //moveHistory.push(model, moveFrom, moveTo);
                     System.err.println(moveFrom + "-" + moveTo);
                     
                 }
@@ -144,21 +147,24 @@ public class Main {
                 promotionChoice = (color + "_" + promotionChoice).toLowerCase();
                 view.promote(moveFrom, moveTo, promotionChoice);
                 
-                moveHistory.push(model, moveFrom, moveTo, promotionChoice);
+                //TODO
+                //moveHistory.push(model, moveFrom, moveTo, promotionChoice);
                 System.err.println(moveFrom + "-" + moveTo);
                 
             } catch (CastlingException e) {
                 model.castle(moveFrom, moveTo);
                 view.castle(moveFrom, moveTo);
                 
-                moveHistory.push(model, moveFrom, moveTo);
+                //TODO
+                //moveHistory.push(model, moveFrom, moveTo);
                 System.err.println(moveFrom + "-" + moveTo);
                 
             } catch (EnPassantException e) {
                 model.enPassant(moveFrom, moveTo);
                 view.enPassant(moveFrom, moveTo);
-                
-                moveHistory.push(model, moveFrom, moveTo);
+    
+                //TODO
+                //moveHistory.push(model, moveFrom, moveTo);
                 System.err.println(moveFrom + "-" + moveTo);
                 
             } catch (SpecialMoveException e) {
