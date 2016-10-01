@@ -1,7 +1,7 @@
 package controller;
 
 import lombok.Getter;
-import model.GameLogic;
+import model.logic.GameLogic;
 
 import java.io.*;
 import java.util.Deque;

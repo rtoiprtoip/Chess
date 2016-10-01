@@ -1,10 +1,10 @@
-package model.impl.pieces;
+package model.domain.pieces;
 
 import java.util.*;
 
 import controller.Coordinates;
 import lombok.EqualsAndHashCode;
-import model.impl.Colors;
+import model.domain.Colors;
 
 @EqualsAndHashCode(callSuper = true)
 final class Knight extends Piece {

@@ -1,13 +1,14 @@
 package view.swing;
 
+import controller.Coordinates;
+
+import javax.swing.*;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.net.URL;
-
-import javax.swing.*;
-import javax.swing.border.*;
-
-import controller.Coordinates;
 
 @SuppressWarnings("serial")
 class MainPanel extends JPanel {
@@ -170,6 +171,7 @@ class MainPanel extends JPanel {
 		fields[c.getCol()][c.getRow()].setIcon(icon);
 	}
 
+	@SuppressWarnings("FieldCanBeLocal")
 	private final int NUMBER_OF_TILES_IN_CHESSBOARD_ROW = 10;
 	private final int CHESSBOARD_SIZE = (int) (Toolkit.getDefaultToolkit().getScreenSize().getHeight() * 0.67);
 	private final int FIELD_SIZE = CHESSBOARD_SIZE / 10;
@@ -236,13 +238,13 @@ class MainPanel extends JPanel {
 			setBounds(3 * FIELD_SIZE + 1, 0, 4 * FIELD_SIZE, FIELD_SIZE);
 		}
 
-		public String choose() {
+		String choose() {
 
 			synchronized (this) {
 				while (choice == null) {
 					try {
 						this.wait();
-					} catch (InterruptedException e) {
+					} catch (InterruptedException ignored) {
 					}
 				}
 			}

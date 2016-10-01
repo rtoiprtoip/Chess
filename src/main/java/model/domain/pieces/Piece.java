@@ -1,14 +1,17 @@
-package model.impl.pieces;
-
-import java.io.Serializable;
-import java.util.*;
+package model.domain.pieces;
 
 import controller.Coordinates;
-import lombok.*;
-import model.impl.Colors;
-import model.impl.PromotionException;
-import model.impl.SpecialMoveException;
-import model.impl.TwoFieldsPawnAdvanceException;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+import model.domain.Colors;
+import controller.exceptions.PromotionException;
+import controller.exceptions.SpecialMoveException;
+import controller.exceptions.TwoFieldsPawnAdvanceException;
+
+import java.io.Serializable;
+import java.util.LinkedList;
+import java.util.List;
 
 @EqualsAndHashCode(exclude = "hasMoved")
 public abstract class Piece implements Serializable {

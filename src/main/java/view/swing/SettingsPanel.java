@@ -1,13 +1,15 @@
 package view.swing;
 
-import java.awt.*;
-import java.awt.event.*;
-import java.beans.*;
-
 import javax.swing.*;
+import java.awt.*;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
+import java.beans.*;
 
 @SuppressWarnings("serial")
 class SettingsPanel extends JPanel {
+	
+	@SuppressWarnings("FieldCanBeLocal")
 	private final JPanel optionsPanel;
 	final JButton okButton;
 
@@ -21,7 +23,7 @@ class SettingsPanel extends JPanel {
 		optionsPanel = new JPanel(new GridLayout(x, y));
 
 		optionsPanel.add(new JLabel("time per player (mm:ss):"));
-		SettingsInputField timePerPlayer = new SettingsInputField("gameTime", "10:00");
+		SettingsInputField timePerPlayer = new SettingsInputField("gameTime", "15:00");
 		timePerPlayer.setHorizontalAlignment(JTextField.CENTER);
 		optionsPanel.add(timePerPlayer);
 

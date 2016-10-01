@@ -1,9 +1,12 @@
 package controller;
 
+import controller.exceptions.CastlingException;
+import controller.exceptions.EnPassantException;
+import controller.exceptions.PromotionException;
+import controller.exceptions.SpecialMoveException;
 import lombok.NonNull;
-import model.GameLogic;
-import model.impl.*;
-import model.impl.pieces.Piece;
+import model.logic.GameLogic;
+import model.domain.pieces.Piece;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.annotation.ComponentScan;
@@ -23,22 +26,23 @@ public class Main {
     private final GameLogic model;
     private static MoveHistory moveHistory;
     
-    Main(@NonNull GameLogic model1, @NonNull View view1) {
-        this.model = model1;
-        this.view = view1;
+    Main(@NonNull GameLogic model, @NonNull View view) {
+        this.model = model;
+        this.view = view;
         
         SettingsHandler settingsHandler = new SettingsHandler();
         
         Thread timeCounter = new Thread() {
             @Override
+            @SuppressWarnings("InfiniteLoopStatement")
             public void run() {
                 synchronized (this) {
                     while (true) {
-                        view.setTime("white", model.getTime("white"));
-                        view.setTime("black", model.getTime("black"));
+                        view.setTime("white", model.getPlayerTime("white"));
+                        view.setTime("black", model.getPlayerTime("black"));
                         try {
                             wait(50);
-                        } catch (InterruptedException e) {
+                        } catch (InterruptedException ignored) {
                         }
                     }
                 }
@@ -47,7 +51,7 @@ public class Main {
         timeCounter.setDaemon(true);
         timeCounter.start();
         
-        view.addSettingsListeners(e -> model.setPaused(!model.isPaused()), settingsHandler, settingsHandler);
+        view.addSettingsListeners(e -> model.setPaused(model.isNotPaused()), settingsHandler, settingsHandler);
         
         view.addNewGameStarter(e -> {
             model.newGame();
@@ -112,14 +116,14 @@ public class Main {
             }
         });
         
-        view.addPauseListener(e -> model.setPaused(!model.isPaused()));
+        view.addPauseListener(e -> model.setPaused(model.isNotPaused()));
         
         view.addEndGameListener(e -> {
             model.endGame();
             view.clearGUI();
         });
         
-        view.addLegalStuffDisplayer(e -> model.setPaused(!model.isPaused()));
+        view.addLegalStuffDisplayer(e -> model.setPaused(model.isNotPaused()));
         
         view.addRevertMoveListener(e -> {
             //TODO
@@ -168,7 +172,7 @@ public class Main {
                 System.err.println(moveFrom + "-" + moveTo);
                 
             } catch (SpecialMoveException e) {
-                assert false;
+                throw new AssertionError();
             }
         }).start());
     }
@@ -198,9 +202,9 @@ public class Main {
                 String[] numbers = ((String) evt.getNewValue()).split(":");
                 model.setGameTime(Integer.parseInt(numbers[0]), Integer.parseInt(numbers[1]));
             } else if (evt.getPropertyName().equals("timeAdded")) {
-                model.setTimeAddedPerMove(Integer.parseInt((String) evt.getNewValue()));
+                model.setTimeToAddAfterMove(Integer.parseInt((String) evt.getNewValue()));
             } else {
-                assert false;
+                throw new AssertionError();
             }
         }
         
@@ -216,7 +220,7 @@ public class Main {
                     throw new PropertyVetoException("invalid format", evt);
                 }
             } else {
-                assert false;
+                throw new AssertionError();
             }
         }
         

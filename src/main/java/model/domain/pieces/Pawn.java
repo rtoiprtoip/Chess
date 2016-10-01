@@ -1,12 +1,12 @@
-package model.impl.pieces;
+package model.domain.pieces;
 
 import controller.Coordinates;
 import lombok.EqualsAndHashCode;
-import model.impl.Colors;
-import model.impl.EnPassantException;
-import model.impl.PromotionException;
-import model.impl.SpecialMoveException;
-import model.impl.TwoFieldsPawnAdvanceException;
+import model.domain.Colors;
+import controller.exceptions.EnPassantException;
+import controller.exceptions.PromotionException;
+import controller.exceptions.SpecialMoveException;
+import controller.exceptions.TwoFieldsPawnAdvanceException;
 
 @EqualsAndHashCode(callSuper = true)
 final class Pawn extends Piece {
@@ -18,6 +18,7 @@ final class Pawn extends Piece {
 	}
 
 	@Override
+	@SuppressWarnings("SimplifiableIfStatement")
 	public boolean performActualCheckIfItCanMoveThere(Coordinates from, Coordinates to, boolean capturing)
 			throws SpecialMoveException {
 		final int x1 = from.getCol(), x2 = to.getCol(), y1 = from.getRow(), y2 = to.getRow();

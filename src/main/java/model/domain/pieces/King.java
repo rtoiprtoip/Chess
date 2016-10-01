@@ -1,10 +1,10 @@
-package model.impl.pieces;
+package model.domain.pieces;
 
 import controller.Coordinates;
 import lombok.EqualsAndHashCode;
-import model.impl.CastlingException;
-import model.impl.Colors;
-import model.impl.SpecialMoveException;
+import controller.exceptions.CastlingException;
+import model.domain.Colors;
+import controller.exceptions.SpecialMoveException;
 
 @EqualsAndHashCode(callSuper = true)
 final class King extends Piece {
