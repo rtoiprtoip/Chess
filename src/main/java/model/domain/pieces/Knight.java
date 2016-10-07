@@ -1,15 +1,14 @@
 package model.domain.pieces;
 
-import java.util.*;
-
 import controller.Coordinates;
 import lombok.EqualsAndHashCode;
 import model.domain.Colors;
 
+import java.util.LinkedList;
+import java.util.List;
+
 @EqualsAndHashCode(callSuper = true)
 final class Knight extends Piece {
-
-    private static final long serialVersionUID = -2469412138530237398L;
 
     Knight(Colors color) {
         super(color);

@@ -5,8 +5,10 @@ import controller.exceptions.EnPassantException;
 import controller.exceptions.PromotionException;
 import controller.exceptions.SpecialMoveException;
 import lombok.NonNull;
-import model.logic.GameLogic;
+import model.history.MoveHistory;
 import model.domain.pieces.Piece;
+import model.history.impl.MoveHistoryImpl;
+import model.logic.GameLogic;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.annotation.ComponentScan;
@@ -24,7 +26,6 @@ public class Main {
     
     private final View view;
     private final GameLogic model;
-    private static MoveHistory moveHistory;
     
     Main(@NonNull GameLogic model, @NonNull View view) {
         this.model = model;
@@ -56,8 +57,6 @@ public class Main {
         view.addNewGameStarter(e -> {
             model.newGame();
             updateChessboard();
-            //TODO
-            //moveHistory = new MoveHistory(model);
             model.startOrResume();
         });
         
@@ -71,9 +70,8 @@ public class Main {
             try (FileInputStream fileInput = new FileInputStream(inputFile);
                  ObjectInputStream objIn = new ObjectInputStream(fileInput)) {
                 
-                moveHistory = (MoveHistory) objIn.readObject();
-                //TODO
-                //model = moveHistory.pop();
+                MoveHistory moveHistory = (MoveHistoryImpl) objIn.readObject();
+                model.loadGame(moveHistory);
                 
                 updateChessboard();
                 model.startOrResume();
@@ -94,7 +92,7 @@ public class Main {
             System.err.println("Saving");
             try (FileOutputStream fileOut = new FileOutputStream(outputFile);
                  ObjectOutputStream objOut = new ObjectOutputStream(fileOut)) {
-                objOut.writeObject(moveHistory);
+                objOut.writeObject(model.getMoveHistory());
             } catch (IOException i) {
                 i.printStackTrace();
             }
@@ -110,7 +108,7 @@ public class Main {
             
             System.err.println("Saving");
             try (PrintWriter writer = new PrintWriter(outputFile)) {
-                moveHistory.getMoveLog().forEach(writer::println);
+                model.getMoveHistory().getMoveLog().forEach(writer::println);
             } catch (IOException i) {
                 i.printStackTrace();
             }
@@ -126,8 +124,8 @@ public class Main {
         view.addLegalStuffDisplayer(e -> model.setPaused(model.isNotPaused()));
         
         view.addRevertMoveListener(e -> {
-            //TODO
-            //model = moveHistory.pop();
+            System.err.println("revert");
+            model.revertMove();
             updateChessboard();
             model.startOrResume();
         });
@@ -139,10 +137,7 @@ public class Main {
                     model.move(moveFrom, moveTo);
                     view.move(moveFrom, moveTo);
                     
-                    //TODO
-                    //moveHistory.push(model, moveFrom, moveTo);
                     System.err.println(moveFrom + "-" + moveTo);
-                    
                 }
             } catch (PromotionException e) {
                 String color = model.getWhoseMove().toString();
@@ -151,24 +146,18 @@ public class Main {
                 promotionChoice = (color + "_" + promotionChoice).toLowerCase();
                 view.promote(moveFrom, moveTo, promotionChoice);
                 
-                //TODO
-                //moveHistory.push(model, moveFrom, moveTo, promotionChoice);
                 System.err.println(moveFrom + "-" + moveTo);
                 
             } catch (CastlingException e) {
                 model.castle(moveFrom, moveTo);
                 view.castle(moveFrom, moveTo);
                 
-                //TODO
-                //moveHistory.push(model, moveFrom, moveTo);
                 System.err.println(moveFrom + "-" + moveTo);
                 
             } catch (EnPassantException e) {
                 model.enPassant(moveFrom, moveTo);
                 view.enPassant(moveFrom, moveTo);
-    
-                //TODO
-                //moveHistory.push(model, moveFrom, moveTo);
+                
                 System.err.println(moveFrom + "-" + moveTo);
                 
             } catch (SpecialMoveException e) {

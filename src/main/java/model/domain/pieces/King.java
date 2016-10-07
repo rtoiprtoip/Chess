@@ -9,8 +9,6 @@ import controller.exceptions.SpecialMoveException;
 @EqualsAndHashCode(callSuper = true)
 final class King extends Piece {
 
-	private static final long serialVersionUID = -2415467353802390479L;
-
 	King(Colors color) {
 		super(color);
 	}

@@ -7,8 +7,6 @@ import model.domain.Colors;
 @EqualsAndHashCode(callSuper = true)
 final class Rook extends Piece {
 
-	private static final long serialVersionUID = 5200867402070785492L;
-
 	Rook(Colors color) {
 		super(color);
 	}

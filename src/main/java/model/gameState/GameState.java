@@ -6,7 +6,9 @@ import controller.exceptions.PromotionException;
 import model.domain.Time;
 import model.domain.pieces.Piece;
 
-public interface GameState {
+import java.io.Serializable;
+
+public interface GameState extends Cloneable, Serializable {
     
     void newGame(Time timePerPlayer);
     
@@ -42,5 +44,5 @@ public interface GameState {
     
     void castle(Coordinates from, Coordinates to);
     
-    void setTimeForPlayers(Time timePerPlayer);
+    GameState clone();
 }

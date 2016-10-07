@@ -7,8 +7,6 @@ import model.domain.Colors;
 @EqualsAndHashCode(callSuper = true)
 final class Queen extends Piece {
 
-	private static final long serialVersionUID = 3375930366765642167L;
-
 	Queen(Colors color) {
 		super(color);
 	}

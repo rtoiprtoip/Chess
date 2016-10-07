@@ -1,6 +1,7 @@
 package model.logic;
 
 import controller.Coordinates;
+import model.history.MoveHistory;
 import model.domain.Colors;
 import controller.exceptions.PromotionException;
 import controller.exceptions.SpecialMoveException;
@@ -39,6 +40,10 @@ public interface GameLogic {
     
     void setTimeToAddAfterMove(int seconds);
     
+    void loadGame(MoveHistory moveHistory);
+    
+    MoveHistory getMoveHistory();
+    
     Time immutableDefaultGameTime = new Time(15, 0) {
         
         @Override
@@ -52,4 +57,5 @@ public interface GameLogic {
         }
     };
     
+    void revertMove();
 }

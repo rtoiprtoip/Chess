@@ -11,8 +11,6 @@ import controller.exceptions.TwoFieldsPawnAdvanceException;
 @EqualsAndHashCode(callSuper = true)
 final class Pawn extends Piece {
 
-	private static final long serialVersionUID = -7210606552037995958L;
-
 	Pawn(Colors color) {
 		super(color);
 	}

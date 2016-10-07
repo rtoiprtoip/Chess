@@ -1,16 +1,15 @@
 package model.domain;
 
+import java.io.Serializable;
 import java.time.Duration;
 
-public class Time implements java.io.Serializable {
+public class Time implements Serializable, Cloneable {
     
-    private static final long serialVersionUID = -2030169515375322789L;
-    
-    private Duration d;
+    private Duration timeRemaining; //TODO: zmienić nazwę
     public static final Duration precision = Duration.ofMillis(10);
     
     public Time(int minutes, int seconds) {
-        d = Duration.ofMinutes(minutes).plusSeconds(seconds);
+        timeRemaining = Duration.ofMinutes(minutes).plusSeconds(seconds);
     }
     
     public Time() {
@@ -18,35 +17,44 @@ public class Time implements java.io.Serializable {
     }
     
     public Time(Time other) {
-        this(other.d);
+        this(other.timeRemaining);
     }
     
-    private Time(Duration d) {
-        this.d = d;
+    private Time(Duration duration) {
+        this.timeRemaining = duration;
     }
     
     public void add(Time timeAdded) {
-        d = d.plus(timeAdded.d);
+        timeRemaining = timeRemaining.plus(timeAdded.timeRemaining);
     }
     
     public void decrement() {
-        d = d.minus(precision);
+        timeRemaining = timeRemaining.minus(precision);
     }
     
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        int minutes = (int) d.toMinutes();
+        int minutes = (int) timeRemaining.toMinutes();
         if (minutes < 10) {
             sb.append('0');
         }
         sb.append(minutes);
         sb.append(':');
-        int seconds = (int) (d.getSeconds() % 60);
+        int seconds = (int) (timeRemaining.getSeconds() % 60);
         if (seconds < 10) {
             sb.append('0');
         }
         sb.append(seconds);
         return sb.toString();
+    }
+    
+    @Override
+    public Time clone() {
+        try {
+            return (Time) super.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError();
+        }
     }
 }

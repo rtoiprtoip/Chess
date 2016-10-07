@@ -1,5 +1,7 @@
 package model.domain;
 
-public enum Colors implements java.io.Serializable {
+import java.io.Serializable;
+
+public enum Colors implements Serializable {
 	WHITE, BLACK
 }

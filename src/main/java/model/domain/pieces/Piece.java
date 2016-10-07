@@ -14,9 +14,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 @EqualsAndHashCode(exclude = "hasMoved")
-public abstract class Piece implements Serializable {
-
-	private static final long serialVersionUID = -883737137096650294L;
+public abstract class Piece implements Serializable, Cloneable {
 
 	@Getter
 	protected final Colors color;
@@ -76,6 +74,15 @@ public abstract class Piece implements Serializable {
 
 	public void move(Coordinates to) throws PromotionException, TwoFieldsPawnAdvanceException {
 		hasMoved = true;
+	}
+	
+	@Override
+	public Piece clone(){
+		try {
+			return (Piece) super.clone();
+		} catch (CloneNotSupportedException e) {
+			throw new AssertionError();
+		}
 	}
 
 	public static Piece produce(Colors color, String type) {

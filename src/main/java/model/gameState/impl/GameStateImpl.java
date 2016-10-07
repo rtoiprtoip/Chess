@@ -1,20 +1,16 @@
 package model.gameState.impl;
 
 import controller.Coordinates;
-import model.gameState.GameState;
-import model.domain.Colors;
 import controller.exceptions.PromotionException;
-import model.domain.Time;
 import controller.exceptions.TwoFieldsPawnAdvanceException;
+import model.domain.Colors;
+import model.domain.Time;
 import model.domain.pieces.Piece;
-import org.springframework.stereotype.Service;
+import model.gameState.GameState;
 
-import java.io.Serializable;
-
-@Service
-public class GameStateImpl implements GameState, Serializable {
+public class GameStateImpl implements GameState {
     
-    private final Piece[][] fields = new Piece[9][9];
+    private Piece[][] fields;
     
     private Time whiteTime;
     private Time blackTime;
@@ -23,6 +19,11 @@ public class GameStateImpl implements GameState, Serializable {
     private Colors whoseMove = Colors.WHITE;
     
     private Integer lastMoveWasTwoFieldPawnAdvanceAtColumn;
+    
+    public GameStateImpl(Time timePerPlayer) {
+        fields = new Piece[9][9];
+        newGame(timePerPlayer);
+    }
     
     @Override
     public void newGame(Time timePerPlayer) {
@@ -54,8 +55,7 @@ public class GameStateImpl implements GameState, Serializable {
         
         whoseMove = Colors.WHITE;
         
-        whiteTime = new Time(timePerPlayer);
-        blackTime = new Time(timePerPlayer);
+        setTimeForPlayers(timePerPlayer);
     }
     
     @Override
@@ -173,11 +173,23 @@ public class GameStateImpl implements GameState, Serializable {
         
     }
     
-    @Override
-    public void setTimeForPlayers(Time timePerPlayer) {
+    private void setTimeForPlayers(Time timePerPlayer) {
         whiteTime = new Time(timePerPlayer);
         blackTime = new Time(timePerPlayer);
         
+    }
+    
+    @Override
+    public GameState clone() {
+        try {
+            GameStateImpl copy = (GameStateImpl) super.clone();
+            copy.fields = copyFields();
+            copy.whiteTime = whiteTime.clone();
+            copy.blackTime = blackTime.clone();
+            return copy;
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError();
+        }
     }
     
     @Override
@@ -200,5 +212,18 @@ public class GameStateImpl implements GameState, Serializable {
     
     private void toggleWhoseMove() {
         whoseMove = (whoseMove == Colors.WHITE ? Colors.BLACK : Colors.WHITE);
+    }
+    
+    private Piece[][] copyFields() {
+        Piece[][] copy = new Piece[9][9];
+        for (int i = 0; i < 9; ++i) {
+            for (int j = 0; j < 9; ++j) {
+                if (fields[i][j] == null) {
+                    continue;
+                }
+                copy[i][j] = fields[i][j].clone();
+            }
+        }
+        return copy;
     }
 }

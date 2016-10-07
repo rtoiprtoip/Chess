@@ -7,8 +7,6 @@ import model.domain.Colors;
 @EqualsAndHashCode(callSuper = true)
 final class Bishop extends Piece {
 
-	private static final long serialVersionUID = 3711254265228445652L;
-
 	Bishop(Colors color) {
 		super(color);
 	}

@@ -5,37 +5,39 @@ import controller.exceptions.CastlingException;
 import controller.exceptions.EnPassantException;
 import controller.exceptions.PromotionException;
 import controller.exceptions.SpecialMoveException;
-import lombok.NonNull;
+import model.history.MoveHistory;
 import model.domain.Colors;
 import model.domain.Time;
-import model.gameState.GameState;
-import model.logic.GameLogic;
 import model.domain.pieces.Piece;
-import org.springframework.beans.factory.annotation.Autowired;
+import model.gameState.GameState;
+import model.gameState.impl.GameStateImpl;
+import model.history.impl.MoveHistoryImpl;
+import model.logic.GameLogic;
 import org.springframework.stereotype.Service;
 
+import java.util.EmptyStackException;
 import java.util.List;
 import java.util.Objects;
 
 @Service
 public class GameLogicImpl implements GameLogic {
     
+    private MoveHistory moveHistory;
     private GameState gameState;
     
     private Time gameTime = new Time(immutableDefaultGameTime); // time per one player
     private Time timeToAddAfterMove = new Time();
     private final TimeCounter timeCounter = new TimeCounter();
     
-    @Autowired
-    public GameLogicImpl(@NonNull GameState gameState) {
-        this.gameState = gameState;
-        gameState.setTimeForPlayers(immutableDefaultGameTime);
+    public GameLogicImpl() {
+        newGame();
         timeCounter.start();
     }
     
     @Override
     public void newGame() {
-        gameState.newGame(gameTime);
+        gameState = new GameStateImpl(gameTime);
+        moveHistory = new MoveHistoryImpl(gameState);
     }
     
     @Override
@@ -78,25 +80,25 @@ public class GameLogicImpl implements GameLogic {
     @Override
     public void castle(Coordinates moveFrom, Coordinates moveTo) {
         gameState.castle(moveFrom, moveTo);
-        actionToPerformAfterMove();
+        actionToPerformAfterMove(moveFrom, moveTo);
     }
     
     @Override
     public void enPassant(Coordinates moveFrom, Coordinates moveTo) {
         gameState.enPassant(moveFrom, moveTo);
-        actionToPerformAfterMove();
+        actionToPerformAfterMove(moveFrom, moveTo);
     }
     
     @Override
     public void promote(Coordinates moveFrom, Coordinates moveTo, String pieceChosen) {
         gameState.promote(moveFrom, moveTo, pieceChosen);
-        actionToPerformAfterMove();
+        actionToPerformAfterMove(moveFrom, moveTo, pieceChosen);
     }
     
     @Override
     public void move(Coordinates moveFrom, Coordinates moveTo) throws PromotionException {
         gameState.move(moveFrom, moveTo);
-        actionToPerformAfterMove();
+        actionToPerformAfterMove(moveFrom, moveTo);
     }
     
     @Override
@@ -129,6 +131,26 @@ public class GameLogicImpl implements GameLogic {
     }
     
     @Override
+    public void loadGame(MoveHistory moveHistory) {
+        this.moveHistory = moveHistory;
+        gameState = moveHistory.peek();
+    }
+    
+    @Override
+    public MoveHistory getMoveHistory() {
+        return moveHistory;
+    }
+    
+    @Override
+    public void revertMove() {
+        try {
+            gameState = moveHistory.pop();
+        } catch (EmptyStackException e) {
+            throw new IllegalStateException("This is the initial game state", e);
+        }
+    }
+    
+    @Override
     public boolean isNotPaused() {
         return !gameState.isPaused();
     }
@@ -148,8 +170,13 @@ public class GameLogicImpl implements GameLogic {
         gameTime = new Time(minutes, seconds);
     }
     
-    private void actionToPerformAfterMove() {
+    private void actionToPerformAfterMove(Coordinates moveFrom, Coordinates moveTo) {
+        actionToPerformAfterMove(moveFrom, moveTo, null);
+    }
+    
+    private void actionToPerformAfterMove(Coordinates moveFrom, Coordinates moveTo, String promotionChoice) {
         gameState.addPlayerTime(timeToAddAfterMove);
+        moveHistory.push(gameState, moveFrom, moveTo, promotionChoice);
         synchronized (timeCounter) {
             timeCounter.notifyAll();
         }
@@ -177,7 +204,8 @@ public class GameLogicImpl implements GameLogic {
         return true;
     }
     
-    private boolean isThisValidMoveForgetCheckAndTurn(Coordinates moveFrom, Coordinates moveTo) throws SpecialMoveException {
+    private boolean isThisValidMoveForgetCheckAndTurn(Coordinates moveFrom, Coordinates moveTo)
+    throws SpecialMoveException {
         if (getPieceAt(moveFrom) == null) {
             return false;
         }
