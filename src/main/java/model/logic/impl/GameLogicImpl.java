@@ -5,12 +5,12 @@ import controller.exceptions.CastlingException;
 import controller.exceptions.EnPassantException;
 import controller.exceptions.PromotionException;
 import controller.exceptions.SpecialMoveException;
-import model.history.MoveHistory;
 import model.domain.Colors;
 import model.domain.Time;
 import model.domain.pieces.Piece;
 import model.gameState.GameState;
 import model.gameState.impl.GameStateImpl;
+import model.history.MoveHistory;
 import model.history.impl.MoveHistoryImpl;
 import model.logic.GameLogic;
 import org.springframework.stereotype.Service;
@@ -212,7 +212,7 @@ public class GameLogicImpl implements GameLogic {
         if (getPieceAt(moveTo) != null && getPieceAt(moveTo).getColor() == getPieceAt(moveFrom).getColor()) {
             return false;
         }
-        List<Coordinates> path = getPieceAt(moveFrom).canMoveThere(moveFrom, moveTo, getPieceAt(moveTo) != null);
+        List<Coordinates> path = getPieceAt(moveFrom).getPath(moveFrom, moveTo, getPieceAt(moveTo) != null);
         if (path == null) {
             return false;
         }

@@ -1,12 +1,12 @@
 package model.logic;
 
 import controller.Coordinates;
-import model.history.MoveHistory;
-import model.domain.Colors;
 import controller.exceptions.PromotionException;
 import controller.exceptions.SpecialMoveException;
+import model.domain.Colors;
 import model.domain.Time;
 import model.domain.pieces.Piece;
+import model.history.MoveHistory;
 
 public interface GameLogic {
     

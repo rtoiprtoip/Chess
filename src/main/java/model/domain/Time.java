@@ -5,7 +5,7 @@ import java.time.Duration;
 
 public class Time implements Serializable, Cloneable {
     
-    private Duration timeRemaining; //TODO: zmienić nazwę
+    private Duration timeRemaining;
     public static final Duration precision = Duration.ofMillis(10);
     
     public Time(int minutes, int seconds) {

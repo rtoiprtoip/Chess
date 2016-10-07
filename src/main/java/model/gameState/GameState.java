@@ -1,16 +1,14 @@
 package model.gameState;
 
 import controller.Coordinates;
-import model.domain.Colors;
 import controller.exceptions.PromotionException;
+import model.domain.Colors;
 import model.domain.Time;
 import model.domain.pieces.Piece;
 
 import java.io.Serializable;
 
 public interface GameState extends Cloneable, Serializable {
-    
-    void newGame(Time timePerPlayer);
     
     Colors getWhoseMove();
     

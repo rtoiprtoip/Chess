@@ -2,8 +2,8 @@ package model.history.impl;
 
 import controller.Coordinates;
 import lombok.NonNull;
-import model.history.MoveHistory;
 import model.gameState.GameState;
+import model.history.MoveHistory;
 
 import java.util.Deque;
 import java.util.EmptyStackException;
@@ -41,6 +41,7 @@ public class MoveHistoryImpl implements MoveHistory {
     
     @Override
     public List<String> getMoveLog() {
+        //noinspection unchecked
         return (List<String>) moveLog.clone();
     }
     

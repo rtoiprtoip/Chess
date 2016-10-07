@@ -25,7 +25,6 @@ public class GameStateImpl implements GameState {
         newGame(timePerPlayer);
     }
     
-    @Override
     public void newGame(Time timePerPlayer) {
         fields[1][1] = Piece.produce(Colors.WHITE, "rook");
         fields[2][1] = Piece.produce(Colors.WHITE, "knight");

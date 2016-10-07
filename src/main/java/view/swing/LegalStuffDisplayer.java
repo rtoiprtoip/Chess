@@ -3,7 +3,6 @@ package view.swing;
 import javax.swing.*;
 import java.awt.*;
 
-@SuppressWarnings("serial")
 class LegalStuffDisplayer extends JPanel {
     
     final JButton okButton;
@@ -18,7 +17,9 @@ class LegalStuffDisplayer extends JPanel {
             + "Icons of pieces are property of Wikipedia user Cburnett." + newLine
             + "They are licensed under Creative Commons Attribution-Share Alike 3.0 Unported license," + newLine
             + "available at http://creativecommons.org/licenses/by-sa/3.0/." + newLine + newLine
-            + "In short, both licenses allow you to use, modify and redistribute the work, as long as you give appropriate credit"
+            +
+            "In short, both licenses allow you to use, modify and redistribute the work, as long as you give " +
+            "appropriate credit"
             + newLine + " to original creators and distribute your contributions under the same license.";
     
     public LegalStuffDisplayer() {
