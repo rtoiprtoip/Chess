@@ -169,7 +169,7 @@ public class SwingView implements view.View {
     @Override
     public void castle(Coordinates from, Coordinates to) {
         Coordinates dir = Coordinates.getDir(from, to);
-        Coordinates rookPos = new Coordinates(dir.getCol() > 0 ? 8 : 1, from.getRow());
+        Coordinates rookPos = Coordinates.of(dir.getCol() > 0 ? 8 : 1, from.getRow());
         mainPanel.moveIcon(from, to);
         mainPanel.moveIcon(rookPos, from.plus(dir));
     }
@@ -177,7 +177,7 @@ public class SwingView implements view.View {
     @Override
     public void enPassant(Coordinates from, Coordinates to) {
         mainPanel.moveIcon(from, to);
-        mainPanel.setIconAt(new Coordinates(to.getCol(), from.getRow()), null);
+        mainPanel.setIconAt(Coordinates.of(to.getCol(), from.getRow()), null);
     }
     
     @Override

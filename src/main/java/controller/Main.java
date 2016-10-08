@@ -175,7 +175,7 @@ public class Main {
     private void updateChessboard() {
         for (int i = 1; i < 9; ++i) {
             for (int j = 1; j < 9; ++j) {
-                Coordinates c = new Coordinates(i, j);
+                Coordinates c = Coordinates.of(i, j);
                 Piece piece = model.getPieceAt(c);
                 if (piece == null) {
                     view.setIconAt(c, null, null);

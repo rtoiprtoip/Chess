@@ -234,7 +234,7 @@ public class GameLogicImpl implements GameLogic {
             for (int j = 1; j <= 8; ++j) {
                 try {
                     if (getPieceAt(i, j) != null && getPieceAt(i, j).getColor() != kingColor
-                        && isThisValidMoveForgetCheckAndTurn(new Coordinates(i, j), kingPos)) {
+                        && isThisValidMoveForgetCheckAndTurn(Coordinates.of(i, j), kingPos)) {
                         return true;
                     }
                 } catch (PromotionException e) {
@@ -251,14 +251,14 @@ public class GameLogicImpl implements GameLogic {
         Colors color = getPieceAt(moveFrom).getColor();
         assert getPieceAt(moveFrom).isKing();
         Coordinates dir = Coordinates.getDir(moveFrom, moveTo);
-        Coordinates rookPos = new Coordinates(dir.getCol() > 0 ? 8 : 1, moveFrom.getRow());
+        Coordinates rookPos = Coordinates.of(dir.getCol() > 0 ? 8 : 1, moveFrom.getRow());
         if (getPieceAt(rookPos) == null || getPieceAt(rookPos).isHasMoved()) {
             return false;
         }
         if (checkIfKingIsChecked(color)) {
             return false;
         }
-        for (Coordinates c = moveFrom.plus(dir); !c.equals(rookPos); c = c.plus(dir)) {
+        for (Coordinates c = moveFrom.plus(dir); c != rookPos; c = c.plus(dir)) {
             if (getPieceAt(c) != null) {
                 return false;
             }
@@ -284,7 +284,7 @@ public class GameLogicImpl implements GameLogic {
         }
         
         Piece movingPawn = getPieceAt(moveFrom);
-        Coordinates capturedPawnCoordinates = new Coordinates(moveTo.getCol(), moveFrom.getRow());
+        Coordinates capturedPawnCoordinates = Coordinates.of(moveTo.getCol(), moveFrom.getRow());
         Piece capturedPawn = getPieceAt(capturedPawnCoordinates);
         
         try {
@@ -309,7 +309,7 @@ public class GameLogicImpl implements GameLogic {
     }
     
     private Piece getPieceAt(int i, int j) {
-        return getPieceAt(new Coordinates(i, j));
+        return getPieceAt(Coordinates.of(i, j));
     }
     
     private class TimeCounter extends Thread {

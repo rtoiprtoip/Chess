@@ -43,7 +43,7 @@ public abstract class Piece implements Serializable, Cloneable {
         if (from == null || to == null) {
             throw new IllegalArgumentException();
         }
-        if (from.equals(to)) {
+        if (from == to) {
             return null;
         }
         if (checkIfCouldMoveThereOnEmptyBoard(from, to, capturing)) {
@@ -60,7 +60,7 @@ public abstract class Piece implements Serializable, Cloneable {
     protected List<Coordinates> getPath(Coordinates from, Coordinates to) {
         Coordinates dir = Coordinates.getDir(from, to);
         List<Coordinates> ret = new LinkedList<>();
-        for (Coordinates c = from.plus(dir); !c.equals(to); c = c.plus(dir)) {
+        for (Coordinates c = from.plus(dir); c != to; c = c.plus(dir)) {
             ret.add(c);
         }
         return ret;

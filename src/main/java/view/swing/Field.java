@@ -9,9 +9,7 @@ import java.awt.*;
 class Field extends JButton {
     
     @Getter
-    final int row;
-    @Getter
-    final int col;
+    final int col, row;
     
     Field(int x, int y) {
         super();
@@ -20,7 +18,7 @@ class Field extends JButton {
     }
     
     Coordinates getCoordinates() {
-        return new Coordinates(col, row);
+        return Coordinates.of(col, row);
     }
     
     Color naturalColor() {

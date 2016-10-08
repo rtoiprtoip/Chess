@@ -100,7 +100,7 @@ public class GameStateImpl implements GameState {
     @Override
     public void castle(Coordinates moveFrom, Coordinates moveTo) {
         Coordinates dir = Coordinates.getDir(moveFrom, moveTo);
-        Coordinates rookPos = new Coordinates(dir.getCol() > 0 ? 8 : 1, moveFrom.getRow());
+        Coordinates rookPos = Coordinates.of(dir.getCol() > 0 ? 8 : 1, moveFrom.getRow());
         try {
             getPieceAt(moveFrom).move(moveTo);
             getPieceAt(rookPos).move(moveFrom.plus(dir));
@@ -119,7 +119,7 @@ public class GameStateImpl implements GameState {
     public void enPassant(Coordinates moveFrom, Coordinates moveTo) {
         setPieceAt(moveTo, getPieceAt(moveFrom));
         setPieceAt(moveFrom, null);
-        setPieceAt(new Coordinates(moveTo.getCol(), moveFrom.getRow()), null);
+        setPieceAt(Coordinates.of(moveTo.getCol(), moveFrom.getRow()), null);
         lastMoveWasTwoFieldPawnAdvanceAtColumn = null;
         toggleWhoseMove();
     }
@@ -200,7 +200,7 @@ public class GameStateImpl implements GameState {
         for (int i = 1; i <= 8; ++i) {
             for (int j = 1; j <= 8; ++j) {
                 if (fields[i][j] != null && fields[i][j].isKing() && fields[i][j].getColor() == kingColor) {
-                    return new Coordinates(i, j);
+                    return Coordinates.of(i, j);
                 }
             }
         }
