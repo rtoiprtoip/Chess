@@ -23,12 +23,11 @@ public class MoveHistoryImpl implements MoveHistory {
     
     @Override
     public GameState pop() {
-        if (gameStateStack.size() < 2) {
+        if (gameStateStack.isEmpty()) {
             throw new EmptyStackException();
         }
         moveLog.removeLast();
-        gameStateStack.removeLast();
-        return gameStateStack.peekLast().clone();
+        return gameStateStack.removeLast().clone();
     }
     
     @Override

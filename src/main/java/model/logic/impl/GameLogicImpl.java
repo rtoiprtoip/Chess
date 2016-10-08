@@ -144,7 +144,8 @@ public class GameLogicImpl implements GameLogic {
     @Override
     public void revertMove() {
         try {
-            gameState = moveHistory.pop();
+            moveHistory.pop();
+            gameState = moveHistory.peek();
         } catch (EmptyStackException e) {
             throw new IllegalStateException("This is the initial game state", e);
         }
