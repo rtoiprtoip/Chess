@@ -1,6 +1,7 @@
 package model.history.impl;
 
-import controller.Coordinates;
+import controller.domain.Coordinates;
+import controller.domain.PieceKind;
 import lombok.NonNull;
 import model.gameState.GameState;
 import model.history.MoveHistory;
@@ -31,10 +32,10 @@ public class MoveHistoryImpl implements MoveHistory {
     }
     
     @Override
-    public void push(GameState gameState, Coordinates moveFrom, Coordinates moveTo, String promotionChoice) {
+    public void push(GameState gameState, Coordinates moveFrom, Coordinates moveTo, PieceKind promotionChoice) {
         gameStateStack.addLast(gameState.clone());
         
-        String promotion = promotionChoice == null ? "" : promotionChoice.split("_")[1];
+        String promotion = promotionChoice == null ? "" : promotionChoice.getName();
         moveLog.addLast(moveFrom + "-" + moveTo + " " + promotion);
     }
     

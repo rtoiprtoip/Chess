@@ -1,10 +1,11 @@
 package model.gameState;
 
-import controller.Coordinates;
+import controller.domain.Coordinates;
+import controller.domain.PieceKind;
 import controller.exceptions.PromotionException;
-import model.domain.Colors;
-import model.domain.Time;
-import model.domain.pieces.Piece;
+import controller.domain.Colors;
+import controller.domain.Time;
+import model.pieces.Piece;
 
 import java.io.Serializable;
 
@@ -24,7 +25,7 @@ public interface GameState extends Cloneable, Serializable {
     
     void setPaused(boolean paused);
     
-    String getPlayerTime(String playerColor);
+    Time getPlayerTime(Colors playerColor);
     
     void addPlayerTime(Time timeToAdd);
     
@@ -36,7 +37,7 @@ public interface GameState extends Cloneable, Serializable {
     
     Integer getLastMoveWasTwoFieldPawnAdvanceAtColumn();
     
-    void promote(Coordinates moveFrom, Coordinates moveTo, String pieceChosen);
+    void promote(Coordinates moveFrom, Coordinates moveTo, PieceKind pieceChosen);
     
     void enPassant(Coordinates from, Coordinates to);
     

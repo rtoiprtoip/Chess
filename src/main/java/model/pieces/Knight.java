@@ -1,8 +1,9 @@
-package model.domain.pieces;
+package model.pieces;
 
-import controller.Coordinates;
+import controller.domain.Coordinates;
+import controller.domain.PieceKind;
 import lombok.EqualsAndHashCode;
-import model.domain.Colors;
+import controller.domain.Colors;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -11,7 +12,7 @@ import java.util.List;
 final class Knight extends Piece {
     
     Knight(Colors color) {
-        super(color);
+        super(color, PieceKind.KNIGHT);
     }
     
     @Override

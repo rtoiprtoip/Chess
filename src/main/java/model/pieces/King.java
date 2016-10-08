@@ -1,16 +1,17 @@
-package model.domain.pieces;
+package model.pieces;
 
-import controller.Coordinates;
+import controller.domain.Coordinates;
+import controller.domain.PieceKind;
 import controller.exceptions.CastlingException;
 import controller.exceptions.SpecialMoveException;
 import lombok.EqualsAndHashCode;
-import model.domain.Colors;
+import controller.domain.Colors;
 
 @EqualsAndHashCode(callSuper = true)
 final class King extends Piece {
     
     King(Colors color) {
-        super(color);
+        super(color, PieceKind.KING);
     }
     
     @Override

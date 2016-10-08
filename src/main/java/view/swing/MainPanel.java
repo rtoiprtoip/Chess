@@ -1,6 +1,8 @@
 package view.swing;
 
-import controller.Coordinates;
+import controller.domain.Coordinates;
+import controller.domain.PieceKind;
+import controller.domain.Colors;
 
 import javax.swing.*;
 import javax.swing.border.CompoundBorder;
@@ -146,29 +148,45 @@ class MainPanel extends JPanel {
         extendedBoard.add(board, 1);
     }
     
-    void setIconAt(Coordinates c, String string) {
-        Icon icon;
+    void setIconAt(Coordinates c, Integer o) {
+        if (o == null) {
+            setIconAt(c, null, null);
+        } else {
+            throw new AssertionError();
+        }
+    }
+    
+    void setIconAt(Coordinates c, PieceKind pieceKind, Colors color) {
+        if (pieceKind == null && color != null) {
+            throw new AssertionError();
+        }
+        if (pieceKind != null && color == null) {
+            throw new AssertionError();
+        }
+        
+        if (pieceKind == null) {
+            fields[c.getCol()][c.getRow()].setIcon(emptyIcon);
+            return;
+        }
+        
+        Icon icon = emptyIcon;
+        String fileName = (color.toString() + "_" + pieceKind.toString()).toLowerCase();
         try {
-            if (string == null) {
-                icon = emptyIcon;
-            } else {
-                URL url = Thread.currentThread().getContextClassLoader()
-                        .getResource("resources/icons/" + string + ".svg");
-                icon = new ImageIcon(Toolkit.getDefaultToolkit().getImage(url).getScaledInstance(FIELD_SIZE, FIELD_SIZE,
-                        java.awt.Image.SCALE_SMOOTH));
-            }
+            URL url = Thread.currentThread().getContextClassLoader()
+                    .getResource("resources/icons/" + fileName + ".svg");
+            icon = new ImageIcon(Toolkit.getDefaultToolkit().getImage(url).getScaledInstance(FIELD_SIZE, FIELD_SIZE,
+                    java.awt.Image.SCALE_SMOOTH));
         } catch (NullPointerException e) {
             try {
-                URL url = Thread.currentThread().getContextClassLoader().getResource("icons/" + string + ".svg");
+                URL url = Thread.currentThread().getContextClassLoader().getResource("icons/" + fileName + ".svg");
                 icon = new ImageIcon(Toolkit.getDefaultToolkit().getImage(url).getScaledInstance(FIELD_SIZE, FIELD_SIZE,
                         java.awt.Image.SCALE_SMOOTH));
             } catch (NullPointerException e1) {
-                e1.printStackTrace();
-                icon = emptyIcon;
+                throw new AssertionError("File not found", e);
             }
+        } finally {
+            fields[c.getCol()][c.getRow()].setIcon(icon);
         }
-        
-        fields[c.getCol()][c.getRow()].setIcon(icon);
     }
     
     @SuppressWarnings("FieldCanBeLocal")
@@ -198,12 +216,12 @@ class MainPanel extends JPanel {
         blackTimeDisplayer.setText("00:00");
     }
     
-    void promote(Coordinates moveFrom, Coordinates moveTo, String promotionChoice) {
+    void promote(Coordinates moveFrom, Coordinates moveTo, PieceKind promotionChoice, Colors whoseMove) {
         setIconAt(moveFrom, null);
-        setIconAt(moveTo, promotionChoice);
+        setIconAt(moveTo, promotionChoice, whoseMove);
     }
     
-    String getPromotionChoice(String color) {
+    PieceKind getPromotionChoice(Colors color) {
         PromotionHandler ph = new PromotionHandler(color);
         extendedBoard.add(ph, 2);
         try {
@@ -216,22 +234,24 @@ class MainPanel extends JPanel {
     
     private class PromotionHandler extends JPanel {
         
-        volatile String choice = null;
-        final String[] names = {"queen", "rook", "bishop", "knight"};
+        volatile PieceKind choice = null;
+        final PieceKind[] choiceOptions = {PieceKind.QUEEN, PieceKind.ROOK, PieceKind.BISHOP, PieceKind.KNIGHT};
         
-        public PromotionHandler(String color) {
+        PromotionHandler(Colors whoseMove) {
             
             super(new GridLayout(1, 4));
             
             for (int i = 0; i < 4; ++i) {
                 Field f = new Field(0, 0);
                 f.setIcon(new ImageIcon(new ImageIcon(
-                        getClass().getResource(("/icons/" + color + "_" + names[i] + ".svg").toLowerCase())).getImage()
+                        getClass().getResource(
+                                ("/icons/" + whoseMove.toString().toLowerCase() + "_" +
+                                 choiceOptions[i].toString().toLowerCase() + ".svg").toLowerCase())).getImage()
                         .getScaledInstance(FIELD_SIZE, FIELD_SIZE, java.awt.Image.SCALE_SMOOTH)));
                 final int i1 = i;
                 f.addActionListener(e -> {
                     synchronized (PromotionHandler.this) {
-                        choice = names[i1];
+                        choice = choiceOptions[i1];
                         PromotionHandler.this.notifyAll();
                     }
                 });
@@ -241,7 +261,7 @@ class MainPanel extends JPanel {
             setBounds(3 * FIELD_SIZE + 1, 0, 4 * FIELD_SIZE, FIELD_SIZE);
         }
         
-        String choose() {
+        PieceKind choose() {
             
             synchronized (this) {
                 while (choice == null) {

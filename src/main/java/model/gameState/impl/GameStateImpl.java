@@ -1,12 +1,15 @@
 package model.gameState.impl;
 
-import controller.Coordinates;
+import controller.domain.Coordinates;
+import controller.domain.PieceKind;
 import controller.exceptions.PromotionException;
 import controller.exceptions.TwoFieldsPawnAdvanceException;
-import model.domain.Colors;
-import model.domain.Time;
-import model.domain.pieces.Piece;
+import controller.domain.Colors;
+import controller.domain.Time;
+import model.pieces.Piece;
 import model.gameState.GameState;
+
+import static controller.domain.PieceKind.*;
 
 public class GameStateImpl implements GameState {
     
@@ -26,27 +29,27 @@ public class GameStateImpl implements GameState {
     }
     
     public void newGame(Time timePerPlayer) {
-        fields[1][1] = Piece.produce(Colors.WHITE, "rook");
-        fields[2][1] = Piece.produce(Colors.WHITE, "knight");
-        fields[3][1] = Piece.produce(Colors.WHITE, "bishop");
-        fields[4][1] = Piece.produce(Colors.WHITE, "queen");
-        fields[5][1] = Piece.produce(Colors.WHITE, "king");
-        fields[6][1] = Piece.produce(Colors.WHITE, "bishop");
-        fields[7][1] = Piece.produce(Colors.WHITE, "knight");
-        fields[8][1] = Piece.produce(Colors.WHITE, "rook");
+        fields[1][1] = Piece.produce(Colors.WHITE, ROOK);
+        fields[2][1] = Piece.produce(Colors.WHITE, KNIGHT);
+        fields[3][1] = Piece.produce(Colors.WHITE, BISHOP);
+        fields[4][1] = Piece.produce(Colors.WHITE, QUEEN);
+        fields[5][1] = Piece.produce(Colors.WHITE, KING);
+        fields[6][1] = Piece.produce(Colors.WHITE, BISHOP);
+        fields[7][1] = Piece.produce(Colors.WHITE, KNIGHT);
+        fields[8][1] = Piece.produce(Colors.WHITE, ROOK);
         
-        fields[1][8] = Piece.produce(Colors.BLACK, "rook");
-        fields[2][8] = Piece.produce(Colors.BLACK, "knight");
-        fields[3][8] = Piece.produce(Colors.BLACK, "bishop");
-        fields[4][8] = Piece.produce(Colors.BLACK, "queen");
-        fields[5][8] = Piece.produce(Colors.BLACK, "king");
-        fields[6][8] = Piece.produce(Colors.BLACK, "bishop");
-        fields[7][8] = Piece.produce(Colors.BLACK, "knight");
-        fields[8][8] = Piece.produce(Colors.BLACK, "rook");
+        fields[1][8] = Piece.produce(Colors.BLACK, ROOK);
+        fields[2][8] = Piece.produce(Colors.BLACK, KNIGHT);
+        fields[3][8] = Piece.produce(Colors.BLACK, BISHOP);
+        fields[4][8] = Piece.produce(Colors.BLACK, QUEEN);
+        fields[5][8] = Piece.produce(Colors.BLACK, KING);
+        fields[6][8] = Piece.produce(Colors.BLACK, BISHOP);
+        fields[7][8] = Piece.produce(Colors.BLACK, KNIGHT);
+        fields[8][8] = Piece.produce(Colors.BLACK, ROOK);
         
         for (int i = 1; i < 9; ++i) {
-            fields[i][2] = Piece.produce(Colors.WHITE, "pawn");
-            fields[i][7] = Piece.produce(Colors.BLACK, "pawn");
+            fields[i][2] = Piece.produce(Colors.WHITE, PAWN);
+            fields[i][7] = Piece.produce(Colors.BLACK, PAWN);
             for (int j = 3; j < 7; ++j) {
                 fields[i][j] = null;
             }
@@ -87,7 +90,7 @@ public class GameStateImpl implements GameState {
     }
     
     @Override
-    public void promote(Coordinates moveFrom, Coordinates moveTo, String pieceChosen) {
+    public void promote(Coordinates moveFrom, Coordinates moveTo, PieceKind pieceChosen) {
         setPieceAt(moveTo, Piece.produce(getPieceAt(moveFrom).getColor(), pieceChosen));
         setPieceAt(moveFrom, null);
         lastMoveWasTwoFieldPawnAdvanceAtColumn = null;
@@ -148,14 +151,14 @@ public class GameStateImpl implements GameState {
     }
     
     @Override
-    public String getPlayerTime(String playerColor) {
+    public Time getPlayerTime(Colors playerColor) {
         switch (playerColor) {
-            case "white":
-                return whiteTime.toString();
-            case "black":
-                return blackTime.toString();
+            case WHITE:
+                return whiteTime.clone();
+            case BLACK:
+                return blackTime.clone();
             default:
-                throw new IllegalArgumentException();
+                throw new AssertionError();
         }
     }
     

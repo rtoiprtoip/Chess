@@ -1,26 +1,27 @@
-package model.domain.pieces;
+package model.pieces;
 
-import controller.Coordinates;
+import controller.domain.Colors;
+import controller.domain.Coordinates;
+import controller.domain.PieceKind;
 import lombok.EqualsAndHashCode;
-import model.domain.Colors;
 
 @EqualsAndHashCode(callSuper = true)
-final class Bishop extends Piece {
+final class Rook extends Piece {
     
-    Bishop(Colors color) {
-        super(color);
+    Rook(Colors color) {
+        super(color, PieceKind.ROOK);
     }
     
     @Override
     public boolean checkIfCouldMoveThereOnEmptyBoard(Coordinates from, Coordinates to, boolean capturing) {
         int x1 = from.getCol(), x2 = to.getCol(), y1 = from.getRow(), y2 = to.getRow();
-        return Math.abs(x1 - x2) == Math.abs(y1 - y2);
+        return x1 == x2 || y1 == y2;
         
     }
     
     @Override
     public String toString() {
-        return ("" + color + "_bishop").toLowerCase();
+        return ("" + color + "_rook").toLowerCase();
     }
     
 }

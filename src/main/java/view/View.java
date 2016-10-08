@@ -1,6 +1,9 @@
 package view;
 
-import controller.Coordinates;
+import controller.domain.Colors;
+import controller.domain.Coordinates;
+import controller.domain.PieceKind;
+import controller.domain.Time;
 
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeListener;
@@ -24,7 +27,7 @@ public interface View {
     
     void addLegalStuffDisplayer(ActionListener actionListener);
     
-    void setIconAt(Coordinates c, String pieceName);
+    void setIconAt(Coordinates c, PieceKind pieceKind, Colors color);
     
     void addMoveHandler(BiConsumer<Coordinates, Coordinates> handler);
     
@@ -36,11 +39,11 @@ public interface View {
     
     void enPassant(Coordinates moveFrom, Coordinates moveTo);
     
-    String getPromotionChoice(String whoseMove);
+    PieceKind getPromotionChoice(Colors whoseMove);
     
-    void promote(Coordinates moveFrom, Coordinates moveTo, String promotionChoice);
+    void promote(Coordinates moveFrom, Coordinates moveTo, PieceKind promotionChoice, Colors color);
     
-    void setTime(String string, String whiteTime);
+    void setTime(Colors color, Time time);
     
     File getFileToReadFrom();
     

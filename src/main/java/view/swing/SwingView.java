@@ -1,6 +1,9 @@
 package view.swing;
 
-import controller.Coordinates;
+import controller.domain.Coordinates;
+import controller.domain.PieceKind;
+import controller.domain.Colors;
+import controller.domain.Time;
 import org.springframework.stereotype.Service;
 
 import javax.swing.*;
@@ -74,7 +77,7 @@ public class SwingView implements view.View {
                 }
             }
         };
-    
+        
         for (int i = 1; i <= 8; ++i) {
             for (int j = 1; j <= 8; ++j) {
                 mainPanel.fields[i][j].addActionListener(clicksHandler);
@@ -136,8 +139,8 @@ public class SwingView implements view.View {
     }
     
     @Override
-    public void setIconAt(Coordinates c, String string) {
-        mainPanel.setIconAt(c, string);
+    public void setIconAt(Coordinates c, PieceKind pieceKind, Colors color) {
+        mainPanel.setIconAt(c, pieceKind, color);
     }
     
     @Override
@@ -178,21 +181,21 @@ public class SwingView implements view.View {
     }
     
     @Override
-    public String getPromotionChoice(String whoseMove) {
+    public PieceKind getPromotionChoice(Colors whoseMove) {
         return mainPanel.getPromotionChoice(whoseMove);
     }
     
     @Override
-    public void promote(Coordinates moveFrom, Coordinates moveTo, String promotionChoice) {
-        mainPanel.promote(moveFrom, moveTo, promotionChoice);
+    public void promote(Coordinates moveFrom, Coordinates moveTo, PieceKind promotionChoice, Colors color) {
+        mainPanel.promote(moveFrom, moveTo, promotionChoice, color);
     }
     
     @Override
-    public void setTime(String color, String time) {
-        if (color.equals("white")) {
-            mainPanel.whiteTimeDisplayer.setText(time);
+    public void setTime(Colors color, Time time) {
+        if (color == Colors.WHITE) {
+            mainPanel.whiteTimeDisplayer.setText(time.toString());
         } else {
-            mainPanel.blackTimeDisplayer.setText(time);
+            mainPanel.blackTimeDisplayer.setText(time.toString());
         }
     }
     

@@ -1,26 +1,29 @@
-package model.domain.pieces;
+package model.pieces;
 
-import controller.Coordinates;
+import controller.domain.Colors;
+import controller.domain.Coordinates;
+import controller.domain.PieceKind;
 import controller.exceptions.PromotionException;
 import controller.exceptions.SpecialMoveException;
 import controller.exceptions.TwoFieldsPawnAdvanceException;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.Setter;
-import model.domain.Colors;
+import lombok.RequiredArgsConstructor;
 
 import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
 
+@RequiredArgsConstructor
 @EqualsAndHashCode(exclude = "hasMoved")
 public abstract class Piece implements Serializable, Cloneable {
     
     @Getter
     protected final Colors color;
+    @Getter
+    protected final PieceKind kind;
     
     @Getter
-    @Setter
     protected boolean hasMoved = false; // Need this for castling
     
     /**
@@ -63,13 +66,6 @@ public abstract class Piece implements Serializable, Cloneable {
         return ret;
     }
     
-    Piece(Colors color) {
-        if (color == null) {
-            throw new IllegalArgumentException();
-        }
-        this.color = color;
-    }
-    
     public boolean isKing() {
         return false;
     }
@@ -87,22 +83,22 @@ public abstract class Piece implements Serializable, Cloneable {
         }
     }
     
-    public static Piece produce(Colors color, String type) {
+    public static Piece produce(Colors color, PieceKind type) {
         switch (type) {
-            case "rook":
+            case ROOK:
                 return new Rook(color);
-            case "knight":
+            case KNIGHT:
                 return new Knight(color);
-            case "bishop":
+            case BISHOP:
                 return new Bishop(color);
-            case "queen":
+            case QUEEN:
                 return new Queen(color);
-            case "king":
+            case KING:
                 return new King(color);
-            case "pawn":
+            case PAWN:
                 return new Pawn(color);
             default:
-                throw new IllegalArgumentException();
+                throw new AssertionError();
         }
     }
     

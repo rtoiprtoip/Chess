@@ -1,11 +1,14 @@
 package controller;
 
+import controller.domain.Coordinates;
+import controller.domain.PieceKind;
 import controller.exceptions.CastlingException;
 import controller.exceptions.EnPassantException;
 import controller.exceptions.PromotionException;
 import controller.exceptions.SpecialMoveException;
 import lombok.NonNull;
-import model.domain.pieces.Piece;
+import controller.domain.Colors;
+import model.pieces.Piece;
 import model.history.MoveHistory;
 import model.history.impl.MoveHistoryImpl;
 import model.logic.GameLogic;
@@ -39,8 +42,8 @@ public class Main {
             public void run() {
                 synchronized (this) {
                     while (true) {
-                        view.setTime("white", model.getPlayerTime("white"));
-                        view.setTime("black", model.getPlayerTime("black"));
+                        view.setTime(Colors.WHITE, model.getPlayerTime(Colors.WHITE));
+                        view.setTime(Colors.BLACK, model.getPlayerTime(Colors.BLACK));
                         try {
                             wait(50);
                         } catch (InterruptedException ignored) {
@@ -140,11 +143,10 @@ public class Main {
                     System.err.println(moveFrom + "-" + moveTo);
                 }
             } catch (PromotionException e) {
-                String color = model.getWhoseMove().toString();
-                String promotionChoice = view.getPromotionChoice(color);
+                Colors whoseMove = model.getWhoseMove();
+                PieceKind promotionChoice = view.getPromotionChoice(whoseMove);
                 model.promote(moveFrom, moveTo, promotionChoice);
-                promotionChoice = (color + "_" + promotionChoice).toLowerCase();
-                view.promote(moveFrom, moveTo, promotionChoice);
+                view.promote(moveFrom, moveTo, promotionChoice, whoseMove);
                 
                 System.err.println(moveFrom + "-" + moveTo);
                 
@@ -175,7 +177,11 @@ public class Main {
             for (int j = 1; j < 9; ++j) {
                 Coordinates c = new Coordinates(i, j);
                 Piece piece = model.getPieceAt(c);
-                view.setIconAt(c, piece == null ? null : piece.toString());
+                if (piece == null) {
+                    view.setIconAt(c, null, null);
+                } else {
+                    view.setIconAt(c, piece.getKind(), piece.getColor());
+                }
             }
         }
     }

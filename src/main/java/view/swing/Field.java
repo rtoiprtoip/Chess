@@ -1,6 +1,6 @@
 package view.swing;
 
-import controller.Coordinates;
+import controller.domain.Coordinates;
 import lombok.Getter;
 
 import javax.swing.*;

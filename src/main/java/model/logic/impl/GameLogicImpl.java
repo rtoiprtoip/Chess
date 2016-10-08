@@ -1,13 +1,14 @@
 package model.logic.impl;
 
-import controller.Coordinates;
+import controller.domain.Coordinates;
+import controller.domain.PieceKind;
 import controller.exceptions.CastlingException;
 import controller.exceptions.EnPassantException;
 import controller.exceptions.PromotionException;
 import controller.exceptions.SpecialMoveException;
-import model.domain.Colors;
-import model.domain.Time;
-import model.domain.pieces.Piece;
+import controller.domain.Colors;
+import controller.domain.Time;
+import model.pieces.Piece;
 import model.gameState.GameState;
 import model.gameState.impl.GameStateImpl;
 import model.history.MoveHistory;
@@ -90,7 +91,7 @@ public class GameLogicImpl implements GameLogic {
     }
     
     @Override
-    public void promote(Coordinates moveFrom, Coordinates moveTo, String pieceChosen) {
+    public void promote(Coordinates moveFrom, Coordinates moveTo, PieceKind pieceChosen) {
         gameState.promote(moveFrom, moveTo, pieceChosen);
         actionToPerformAfterMove(moveFrom, moveTo, pieceChosen);
     }
@@ -121,8 +122,8 @@ public class GameLogicImpl implements GameLogic {
     }
     
     @Override
-    public String getPlayerTime(String playerColor) {
-        return gameState.getPlayerTime(playerColor);
+    public Time getPlayerTime(Colors color) {
+        return gameState.getPlayerTime(color);
     }
     
     @Override
@@ -175,7 +176,7 @@ public class GameLogicImpl implements GameLogic {
         actionToPerformAfterMove(moveFrom, moveTo, null);
     }
     
-    private void actionToPerformAfterMove(Coordinates moveFrom, Coordinates moveTo, String promotionChoice) {
+    private void actionToPerformAfterMove(Coordinates moveFrom, Coordinates moveTo, PieceKind promotionChoice) {
         gameState.addPlayerTime(timeToAddAfterMove);
         moveHistory.push(gameState, moveFrom, moveTo, promotionChoice);
         synchronized (timeCounter) {

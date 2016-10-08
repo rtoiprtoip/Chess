@@ -1,16 +1,17 @@
 package model.logic;
 
-import controller.Coordinates;
+import controller.domain.Coordinates;
+import controller.domain.PieceKind;
 import controller.exceptions.PromotionException;
 import controller.exceptions.SpecialMoveException;
-import model.domain.Colors;
-import model.domain.Time;
-import model.domain.pieces.Piece;
+import controller.domain.Colors;
+import controller.domain.Time;
+import model.pieces.Piece;
 import model.history.MoveHistory;
 
 public interface GameLogic {
     
-    String getPlayerTime(String playerColor);
+    Time getPlayerTime(Colors playerColor);
     
     boolean isNotPaused();
     
@@ -28,7 +29,7 @@ public interface GameLogic {
     
     Colors getWhoseMove();
     
-    void promote(Coordinates moveFrom, Coordinates moveTo, String promotionChoice);
+    void promote(Coordinates moveFrom, Coordinates moveTo, PieceKind promotionChoice);
     
     void castle(Coordinates moveFrom, Coordinates moveTo);
     

@@ -1,18 +1,19 @@
-package model.domain.pieces;
+package model.pieces;
 
-import controller.Coordinates;
+import controller.domain.Coordinates;
+import controller.domain.PieceKind;
 import controller.exceptions.EnPassantException;
 import controller.exceptions.PromotionException;
 import controller.exceptions.SpecialMoveException;
 import controller.exceptions.TwoFieldsPawnAdvanceException;
 import lombok.EqualsAndHashCode;
-import model.domain.Colors;
+import controller.domain.Colors;
 
 @EqualsAndHashCode(callSuper = true)
 final class Pawn extends Piece {
     
     Pawn(Colors color) {
-        super(color);
+        super(color, PieceKind.PAWN);
     }
     
     @Override
