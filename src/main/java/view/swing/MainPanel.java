@@ -1,8 +1,8 @@
 package view.swing;
 
+import controller.domain.Colors;
 import controller.domain.Coordinates;
 import controller.domain.PieceKind;
-import controller.domain.Colors;
 
 import javax.swing.*;
 import javax.swing.border.CompoundBorder;
@@ -169,24 +169,29 @@ class MainPanel extends JPanel {
             return;
         }
         
-        Icon icon = emptyIcon;
-        String fileName = (color.toString() + "_" + pieceKind.toString()).toLowerCase();
-        try {
-            URL url = Thread.currentThread().getContextClassLoader()
-                    .getResource("resources/icons/" + fileName + ".svg");
-            icon = new ImageIcon(Toolkit.getDefaultToolkit().getImage(url).getScaledInstance(FIELD_SIZE, FIELD_SIZE,
-                    java.awt.Image.SCALE_SMOOTH));
-        } catch (NullPointerException e) {
-            try {
-                URL url = Thread.currentThread().getContextClassLoader().getResource("icons/" + fileName + ".svg");
-                icon = new ImageIcon(Toolkit.getDefaultToolkit().getImage(url).getScaledInstance(FIELD_SIZE, FIELD_SIZE,
-                        java.awt.Image.SCALE_SMOOTH));
-            } catch (NullPointerException e1) {
-                throw new AssertionError("File not found", e);
-            }
-        } finally {
-            fields[c.getCol()][c.getRow()].setIcon(icon);
+        Icon icon = getScaledIcon(pieceKind, color);
+        fields[c.getCol()][c.getRow()].setIcon(icon);
+    }
+    
+    private Icon getScaledIcon(PieceKind pieceKind, Colors color) {
+        
+        String fileName = (color.toString() + "_" + pieceKind.toString() + ".svg").toLowerCase();
+        
+        Image image = getImageFromResources(fileName);
+        if (image != null) {
+            return scaleImageToFieldSize(image);
         }
+        
+        throw new AssertionError("Image of " + color + " " + pieceKind + " not found");
+    }
+    
+    private Image getImageFromResources(String fileName) {
+        URL jarUrl = Thread.currentThread().getContextClassLoader().getResource("icons/" + fileName);
+        return Toolkit.getDefaultToolkit().getImage(jarUrl);
+    }
+    
+    private Icon scaleImageToFieldSize(Image image) {
+        return new ImageIcon(image.getScaledInstance(FIELD_SIZE, FIELD_SIZE, java.awt.Image.SCALE_SMOOTH));
     }
     
     @SuppressWarnings("FieldCanBeLocal")
@@ -243,11 +248,7 @@ class MainPanel extends JPanel {
             
             for (int i = 0; i < 4; ++i) {
                 Field f = new Field(0, 0);
-                f.setIcon(new ImageIcon(new ImageIcon(
-                        getClass().getResource(
-                                ("/icons/" + whoseMove.toString().toLowerCase() + "_" +
-                                 choiceOptions[i].toString().toLowerCase() + ".svg").toLowerCase())).getImage()
-                        .getScaledInstance(FIELD_SIZE, FIELD_SIZE, java.awt.Image.SCALE_SMOOTH)));
+                f.setIcon(getScaledIcon(choiceOptions[i], whoseMove));
                 final int i1 = i;
                 f.addActionListener(e -> {
                     synchronized (PromotionHandler.this) {
