@@ -28,7 +28,7 @@ public class GameStateImpl implements GameState {
         newGame(timePerPlayer);
     }
     
-    public void newGame(Time timePerPlayer) {
+    private void newGame(Time timePerPlayer) {
         fields[1][1] = Piece.produce(Colors.WHITE, ROOK);
         fields[2][1] = Piece.produce(Colors.WHITE, KNIGHT);
         fields[3][1] = Piece.produce(Colors.WHITE, BISHOP);

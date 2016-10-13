@@ -8,6 +8,7 @@ import controller.exceptions.CastlingException;
 import controller.exceptions.EnPassantException;
 import controller.exceptions.PromotionException;
 import controller.exceptions.SpecialMoveException;
+import lombok.Value;
 import model.gameState.GameState;
 import model.gameState.impl.GameStateImpl;
 import model.history.MoveHistory;
@@ -26,9 +27,11 @@ public class GameLogicImpl implements GameLogic {
     private MoveHistory moveHistory;
     private GameState gameState;
     
-    private Time gameTime = new Time(immutableDefaultGameTime); // time per one player
+    private Time timePerPlayer = new Time(immutableDefaultGameTime);
     private Time timeToAddAfterMove = new Time();
     private final TimeCounter timeCounter = new TimeCounter();
+    
+    private PromotionMoveData promotionMoveData;
     
     public GameLogicImpl() {
         newGame();
@@ -37,73 +40,17 @@ public class GameLogicImpl implements GameLogic {
     
     @Override
     public void newGame() {
-        gameState = new GameStateImpl(gameTime);
+        gameState = new GameStateImpl(timePerPlayer);
         moveHistory = new MoveHistoryImpl(gameState);
     }
     
     @Override
-    @SuppressWarnings("SimplifiableIfStatement")
-    public boolean isThisValidMove(Coordinates moveFrom, Coordinates moveTo) throws SpecialMoveException {
-        try {
-            // check if user wants to move an existing piece owned by him
-            if (getPieceAt(moveFrom) == null || getPieceAt(moveFrom).getColor() != gameState.getWhoseMove()) {
-                return false;
-            }
-            
-            // check if user tries to capture his own piece
-            if (getPieceAt(moveTo) != null && getPieceAt(moveTo).getColor() == gameState.getWhoseMove()) {
-                return false;
-            }
-            
-            if (!isThisValidMoveForgetCheckAndTurn(moveFrom, moveTo)) {
-                return false;
-            }
-    
-            if (checkIfKingWillBeCheckedAfterMove(moveFrom, moveTo)) {
-                return false;
-            }
-            
-            return true;
-            
-        } catch (EnPassantException e) {
-            if (authorizeEnPassant(moveFrom, moveTo)) {
-                throw e;
-            } else {
-                return false;
-            }
-        } catch (CastlingException e) {
-            if (authorizeCastling(moveFrom, moveTo)) {
-                throw e;
-            } else {
-                return false;
-            }
-        } catch (PromotionException e) {
-            return !checkIfKingWillBeCheckedAfterMove(moveFrom, moveTo);
+    public void promote(PieceKind pieceChosen) {
+        if (promotionMoveData == null) {
+            throw new IllegalStateException("Service is not awaiting promotion choice");
         }
-    }
-    
-    @Override
-    public void castle(Coordinates moveFrom, Coordinates moveTo) {
-        gameState.castle(moveFrom, moveTo);
-        actionToPerformAfterMove(moveFrom, moveTo);
-    }
-    
-    @Override
-    public void enPassant(Coordinates moveFrom, Coordinates moveTo) {
-        gameState.enPassant(moveFrom, moveTo);
-        actionToPerformAfterMove(moveFrom, moveTo);
-    }
-    
-    @Override
-    public void promote(Coordinates moveFrom, Coordinates moveTo, PieceKind pieceChosen) {
-        gameState.promote(moveFrom, moveTo, pieceChosen);
-        actionToPerformAfterMove(moveFrom, moveTo, pieceChosen);
-    }
-    
-    @Override
-    public void move(Coordinates moveFrom, Coordinates moveTo) throws PromotionException {
-        gameState.move(moveFrom, moveTo);
-        actionToPerformAfterMove(moveFrom, moveTo);
+        gameState.promote(promotionMoveData.moveFrom, promotionMoveData.moveTo, pieceChosen);
+        actionToPerformAfterMove(promotionMoveData.moveFrom, promotionMoveData.moveTo, pieceChosen);
     }
     
     @Override
@@ -147,6 +94,30 @@ public class GameLogicImpl implements GameLogic {
     }
     
     @Override
+    public boolean tryToMove(Coordinates moveFrom, Coordinates moveTo) throws SpecialMoveException {
+        if (promotionMoveData != null) {
+            throw new IllegalStateException("Service is awaiting promotion choice");
+        }
+        try {
+            if (isThisValidMove(moveFrom, moveTo)) {
+                move(moveFrom, moveTo);
+                return true;
+            } else {
+                return false;
+            }
+        } catch (CastlingException e) {
+            castle(moveFrom, moveTo);
+            throw e;
+        } catch (EnPassantException e) {
+            enPassant(moveFrom, moveTo);
+            throw e;
+        } catch (PromotionException e) {
+            promotionMoveData = new PromotionMoveData(moveFrom, moveTo);
+            throw e;
+        }
+    }
+    
+    @Override
     public void revertMove() {
         try {
             moveHistory.pop();
@@ -173,7 +144,62 @@ public class GameLogicImpl implements GameLogic {
     
     @Override
     public void setGameTime(int minutes, int seconds) {
-        gameTime = new Time(minutes, seconds);
+        timePerPlayer = new Time(minutes, seconds);
+    }
+    
+    @SuppressWarnings({"SimplifiableIfStatement", "RedundantIfStatement"})
+    private boolean isThisValidMove(Coordinates moveFrom, Coordinates moveTo) throws SpecialMoveException {
+        try {
+            // check if user wants to move an existing piece owned by him
+            if (getPieceAt(moveFrom) == null || getPieceAt(moveFrom).getColor() != gameState.getWhoseMove()) {
+                return false;
+            }
+            
+            // check if user tries to capture his own piece
+            if (getPieceAt(moveTo) != null && getPieceAt(moveTo).getColor() == gameState.getWhoseMove()) {
+                return false;
+            }
+            
+            if (!isThisValidMoveForgetCheckAndTurn(moveFrom, moveTo)) {
+                return false;
+            }
+            
+            if (checkIfKingWillBeCheckedAfterMove(moveFrom, moveTo)) {
+                return false;
+            }
+            
+            return true;
+            
+        } catch (EnPassantException e) {
+            if (authorizeEnPassant(moveFrom, moveTo)) {
+                throw e;
+            } else {
+                return false;
+            }
+        } catch (CastlingException e) {
+            if (authorizeCastling(moveFrom, moveTo)) {
+                throw e;
+            } else {
+                return false;
+            }
+        } catch (PromotionException e) {
+            return !checkIfKingWillBeCheckedAfterMove(moveFrom, moveTo);
+        }
+    }
+    
+    private void move(Coordinates moveFrom, Coordinates moveTo) throws PromotionException {
+        gameState.move(moveFrom, moveTo);
+        actionToPerformAfterMove(moveFrom, moveTo);
+    }
+    
+    private void castle(Coordinates moveFrom, Coordinates moveTo) {
+        gameState.castle(moveFrom, moveTo);
+        actionToPerformAfterMove(moveFrom, moveTo);
+    }
+    
+    private void enPassant(Coordinates moveFrom, Coordinates moveTo) {
+        gameState.enPassant(moveFrom, moveTo);
+        actionToPerformAfterMove(moveFrom, moveTo);
     }
     
     private void actionToPerformAfterMove(Coordinates moveFrom, Coordinates moveTo) {
@@ -183,6 +209,7 @@ public class GameLogicImpl implements GameLogic {
     private void actionToPerformAfterMove(Coordinates moveFrom, Coordinates moveTo, PieceKind promotionChoice) {
         gameState.addPlayerTime(timeToAddAfterMove);
         moveHistory.push(gameState, moveFrom, moveTo, promotionChoice);
+        promotionMoveData = null;
         synchronized (timeCounter) {
             timeCounter.notifyAll();
         }
@@ -345,5 +372,12 @@ public class GameLogicImpl implements GameLogic {
                 }
             }
         }
+    }
+    
+    @Value
+    private class PromotionMoveData {
+        
+        Coordinates moveFrom;
+        Coordinates moveTo;
     }
 }

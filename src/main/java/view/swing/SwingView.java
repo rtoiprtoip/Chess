@@ -177,7 +177,7 @@ public class SwingView implements view.View {
     @Override
     public void enPassant(Coordinates from, Coordinates to) {
         mainPanel.moveIcon(from, to);
-        mainPanel.setIconAt(Coordinates.of(to.getCol(), from.getRow()), null);
+        mainPanel.setIconAt(Coordinates.of(to.getCol(), from.getRow()), null, null);
     }
     
     @Override

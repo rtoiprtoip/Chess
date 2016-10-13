@@ -1,5 +1,6 @@
 package controller;
 
+import controller.domain.Colors;
 import controller.domain.Coordinates;
 import controller.domain.PieceKind;
 import controller.exceptions.CastlingException;
@@ -7,11 +8,10 @@ import controller.exceptions.EnPassantException;
 import controller.exceptions.PromotionException;
 import controller.exceptions.SpecialMoveException;
 import lombok.NonNull;
-import controller.domain.Colors;
-import model.pieces.Piece;
 import model.history.MoveHistory;
 import model.history.impl.MoveHistoryImpl;
 import model.logic.GameLogic;
+import model.pieces.Piece;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.annotation.ComponentScan;
@@ -134,36 +134,27 @@ public class Main {
         });
         
         view.addMoveHandler((moveFrom, moveTo) -> new Thread(() -> {
+            boolean moveSuccessful = true;
             try {
-                boolean moveAuthorized = model.isThisValidMove(moveFrom, moveTo);
-                if (moveAuthorized) {
-                    model.move(moveFrom, moveTo);
+                moveSuccessful = model.tryToMove(moveFrom, moveTo);
+                if (moveSuccessful) {
                     view.move(moveFrom, moveTo);
-                    
-                    System.err.println(moveFrom + "-" + moveTo);
                 }
             } catch (PromotionException e) {
                 Colors whoseMove = model.getWhoseMove();
                 PieceKind promotionChoice = view.getPromotionChoice(whoseMove);
-                model.promote(moveFrom, moveTo, promotionChoice);
+                model.promote(promotionChoice);
                 view.promote(moveFrom, moveTo, promotionChoice, whoseMove);
-                
-                System.err.println(moveFrom + "-" + moveTo);
-                
             } catch (CastlingException e) {
-                model.castle(moveFrom, moveTo);
                 view.castle(moveFrom, moveTo);
-                
-                System.err.println(moveFrom + "-" + moveTo);
-                
             } catch (EnPassantException e) {
-                model.enPassant(moveFrom, moveTo);
                 view.enPassant(moveFrom, moveTo);
-                
-                System.err.println(moveFrom + "-" + moveTo);
-                
             } catch (SpecialMoveException e) {
                 throw new AssertionError();
+            } finally {
+                if (moveSuccessful) {
+                    System.err.println(moveFrom + "-" + moveTo);
+                }
             }
         }).start());
     }

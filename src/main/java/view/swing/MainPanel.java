@@ -148,14 +148,6 @@ class MainPanel extends JPanel {
         extendedBoard.add(board, 1);
     }
     
-    void setIconAt(Coordinates c, Integer o) {
-        if (o == null) {
-            setIconAt(c, null, null);
-        } else {
-            throw new AssertionError();
-        }
-    }
-    
     void setIconAt(Coordinates c, PieceKind pieceKind, Colors color) {
         if (pieceKind == null && color != null) {
             throw new AssertionError();
@@ -222,7 +214,7 @@ class MainPanel extends JPanel {
     }
     
     void promote(Coordinates moveFrom, Coordinates moveTo, PieceKind promotionChoice, Colors whoseMove) {
-        setIconAt(moveFrom, null);
+        setIconAt(moveFrom, null, null);
         setIconAt(moveTo, promotionChoice, whoseMove);
     }
     

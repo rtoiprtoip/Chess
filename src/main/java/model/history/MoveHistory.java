@@ -11,6 +11,7 @@ public interface MoveHistory extends Serializable {
     
     void push(GameState gameState, Coordinates moveFrom, Coordinates moveTo, PieceKind promotionChoice);
     
+    @SuppressWarnings("UnusedReturnValue")
     GameState pop();
     
     List<String> getMoveLog();
