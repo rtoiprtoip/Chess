@@ -30,11 +30,12 @@ public class Main {
     private final View view;
     private final GameLogic model;
     
+    private boolean gameInProgress;
+    // true, if there's something on the board, false otherwise (no game has started yet or a game was ended
+    
     Main(@NonNull GameLogic model, @NonNull View view) {
         this.model = model;
         this.view = view;
-        
-        SettingsHandler settingsHandler = new SettingsHandler();
         
         Thread timeCounter = new Thread() {
             @Override
@@ -55,12 +56,14 @@ public class Main {
         timeCounter.setDaemon(true);
         timeCounter.start();
         
+        SettingsHandler settingsHandler = new SettingsHandler();
         view.addSettingsListeners(e -> model.setPaused(model.isNotPaused()), settingsHandler, settingsHandler);
         
         view.addNewGameStarter(e -> {
             model.newGame();
             updateChessboard();
             model.startOrResume();
+            setGameInProgressToTrueAndUpdateView();
         });
         
         view.addGameLoader(e -> {
@@ -69,23 +72,24 @@ public class Main {
                 System.err.println("Load cancelled");
                 return;
             }
-            
+            MoveHistory moveHistory;
             try (FileInputStream fileInput = new FileInputStream(inputFile);
                  ObjectInputStream objIn = new ObjectInputStream(fileInput)) {
-                
-                MoveHistory moveHistory = (MoveHistoryImpl) objIn.readObject();
-                model.loadGame(moveHistory);
-                
-                updateChessboard();
-                model.startOrResume();
-            } catch (StreamCorruptedException s) {
-                System.out.println("File corrupted");
+                moveHistory = (MoveHistoryImpl) objIn.readObject();
             } catch (IOException | ClassNotFoundException i) {
                 i.printStackTrace();
+                throw new RuntimeException("Error while loading game", i);
             }
+            model.loadGame(moveHistory);
+            
+            updateChessboard();
+            model.startOrResume();
+            setGameInProgressToTrueAndUpdateView();
         });
         
         view.addGameSaver(e -> {
+            validateThatGameInProgessHasValue(true);
+            
             File outputFile = view.getFileToSaveIn();
             if (outputFile == null) {
                 System.err.println("Save failed");
@@ -103,6 +107,8 @@ public class Main {
         });
         
         view.addLogSaver(e -> {
+            validateThatGameInProgessHasValue(true);
+            
             File outputFile = view.getFileToSaveIn();
             if (outputFile == null) {
                 System.err.println("Save failed");
@@ -117,16 +123,25 @@ public class Main {
             }
         });
         
-        view.addPauseListener(e -> model.setPaused(model.isNotPaused()));
+        view.addPauseListener(e -> {
+            validateThatGameInProgessHasValue(true);
+            
+            model.setPaused(model.isNotPaused());
+        });
         
         view.addEndGameListener(e -> {
+            validateThatGameInProgessHasValue(true);
+            
             model.endGame();
             view.clearGUI();
+            setGameInProgressToFalseAndUpdateView();
         });
         
         view.addLegalStuffDisplayer(e -> model.setPaused(model.isNotPaused()));
         
         view.addRevertMoveListener(e -> {
+            validateThatGameInProgessHasValue(true);
+            
             System.err.println("revert");
             model.revertMove();
             updateChessboard();
@@ -134,6 +149,8 @@ public class Main {
         });
         
         view.addMoveHandler((moveFrom, moveTo) -> new Thread(() -> {
+            validateThatGameInProgessHasValue(true);
+            
             boolean moveSuccessful = true;
             try {
                 moveSuccessful = model.tryToMove(moveFrom, moveTo);
@@ -157,6 +174,18 @@ public class Main {
                 }
             }
         }).start());
+        
+        setGameInProgressToFalseAndUpdateView();
+    }
+    
+    private void setGameInProgressToTrueAndUpdateView() {
+        gameInProgress = true;
+        view.disableOrEnableButtonsCharacteristicForGameInProgressEqualTo(true);
+    }
+    
+    private void setGameInProgressToFalseAndUpdateView() {
+        gameInProgress = false;
+        view.disableOrEnableButtonsCharacteristicForGameInProgressEqualTo(false);
     }
     
     public static void main(String[] args) {
@@ -177,10 +206,17 @@ public class Main {
         }
     }
     
+    private void validateThatGameInProgessHasValue(boolean expectedValue) {
+        if (gameInProgress != expectedValue) {
+            throw new IllegalStateException("This action is not permitted right now");
+        }
+    }
+    
     private class SettingsHandler implements VetoableChangeListener, PropertyChangeListener {
         
         @Override
         public void propertyChange(PropertyChangeEvent evt) {
+            validateThatGameInProgessHasValue(false);
             if (evt.getPropertyName() == null) {
                 return;
             }
@@ -196,6 +232,7 @@ public class Main {
         
         @Override
         public void vetoableChange(PropertyChangeEvent evt) throws PropertyVetoException {
+            validateThatGameInProgessHasValue(false);
             String newVal = ((String) evt.getNewValue()).trim();
             if (evt.getPropertyName().equals("gameTime")) {
                 if (!newVal.matches("\\d+:[0-5]\\d")) {

@@ -1,8 +1,8 @@
 package view.swing;
 
+import controller.domain.Colors;
 import controller.domain.Coordinates;
 import controller.domain.PieceKind;
-import controller.domain.Colors;
 import controller.domain.Time;
 import org.springframework.stereotype.Service;
 
@@ -264,6 +264,11 @@ public class SwingView implements view.View {
     @Override
     public void addLogSaver(ActionListener actionListener) {
         mainPanel.saveLogButton.addActionListener(actionListener);
+    }
+    
+    @Override
+    public void disableOrEnableButtonsCharacteristicForGameInProgressEqualTo(boolean gameInProgress) {
+        mainPanel.disableOrEnableButtonsCharacteristicForGameInProgress(gameInProgress);
     }
     
 }

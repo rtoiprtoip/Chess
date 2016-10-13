@@ -52,4 +52,6 @@ public interface View {
     void addRevertMoveListener(ActionListener actionListener);
     
     void addLogSaver(ActionListener actionListener);
+    
+    void disableOrEnableButtonsCharacteristicForGameInProgressEqualTo(boolean gameInProgress);
 }

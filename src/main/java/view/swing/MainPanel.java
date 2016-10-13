@@ -15,8 +15,7 @@ import java.net.URL;
 class MainPanel extends JPanel {
     
     private JLayeredPane extendedBoard;
-    // will use two layers, one for displaying board, second for promotion
-    // choice
+    // will use two layers, one for displaying board, second for promotion choice
     
     private JPanel board;
     Field[][] fields;
@@ -37,6 +36,63 @@ class MainPanel extends JPanel {
         this.add(toolbar, BorderLayout.PAGE_START);
         this.add(extendedBoard, BorderLayout.LINE_START);
         this.add(clocks, BorderLayout.LINE_END);
+    }
+    
+    void setIconAt(Coordinates c, PieceKind pieceKind, Colors color) {
+        if (pieceKind == null && color != null) {
+            throw new AssertionError();
+        }
+        if (pieceKind != null && color == null) {
+            throw new AssertionError();
+        }
+        
+        if (pieceKind == null) {
+            fields[c.getCol()][c.getRow()].setIcon(emptyIcon);
+            return;
+        }
+        
+        Icon icon = getScaledIcon(pieceKind, color);
+        fields[c.getCol()][c.getRow()].setIcon(icon);
+    }
+    
+    void moveIcon(Coordinates arg0, Coordinates arg1) {
+        fieldAt(arg1).setIcon(fieldAt(arg0).getIcon());
+        fieldAt(arg0).setIcon(emptyIcon);
+    }
+    
+    void clear() {
+        for (int i = 1; i <= 8; ++i) {
+            for (int j = 1; j <= 8; ++j) {
+                fields[i][j].setIcon(emptyIcon);
+            }
+        }
+        whiteTimeDisplayer.setText("00:00");
+        blackTimeDisplayer.setText("00:00");
+    }
+    
+    void promote(Coordinates moveFrom, Coordinates moveTo, PieceKind promotionChoice, Colors whoseMove) {
+        setIconAt(moveFrom, null, null);
+        setIconAt(moveTo, promotionChoice, whoseMove);
+    }
+    
+    PieceKind getPromotionChoice(Colors color) {
+        PromotionHandler ph = new PromotionHandler(color);
+        extendedBoard.add(ph, 2);
+        try {
+            return ph.choose();
+        } finally {
+            extendedBoard.remove(ph);
+            board.repaint();
+        }
+    }
+    
+    void disableOrEnableButtonsCharacteristicForGameInProgress(boolean gameInProgress) {
+        settingsButton.setEnabled(!gameInProgress);
+        saveButton.setEnabled(gameInProgress);
+        saveLogButton.setEnabled(gameInProgress);
+        revertMoveButton.setEnabled(gameInProgress);
+        endGameButton.setEnabled(gameInProgress);
+        pauseButton.setEnabled(gameInProgress);
     }
     
     private void initializeClocks() {
@@ -148,23 +204,6 @@ class MainPanel extends JPanel {
         extendedBoard.add(board, 1);
     }
     
-    void setIconAt(Coordinates c, PieceKind pieceKind, Colors color) {
-        if (pieceKind == null && color != null) {
-            throw new AssertionError();
-        }
-        if (pieceKind != null && color == null) {
-            throw new AssertionError();
-        }
-        
-        if (pieceKind == null) {
-            fields[c.getCol()][c.getRow()].setIcon(emptyIcon);
-            return;
-        }
-        
-        Icon icon = getScaledIcon(pieceKind, color);
-        fields[c.getCol()][c.getRow()].setIcon(icon);
-    }
-    
     private Icon getScaledIcon(PieceKind pieceKind, Colors color) {
         
         String fileName = (color.toString() + "_" + pieceKind.toString() + ".svg").toLowerCase();
@@ -186,6 +225,10 @@ class MainPanel extends JPanel {
         return new ImageIcon(image.getScaledInstance(FIELD_SIZE, FIELD_SIZE, java.awt.Image.SCALE_SMOOTH));
     }
     
+    private Field fieldAt(Coordinates arg1) {
+        return fields[arg1.getCol()][arg1.getRow()];
+    }
+    
     @SuppressWarnings("FieldCanBeLocal")
     private final int NUMBER_OF_TILES_IN_CHESSBOARD_ROW = 10;
     private final int CHESSBOARD_SIZE = (int) (Toolkit.getDefaultToolkit().getScreenSize().getHeight() * 0.67);
@@ -193,41 +236,6 @@ class MainPanel extends JPanel {
     private final int TIME_PANEL_WIDTH = (int) (CHESSBOARD_SIZE * 0.25);
     private final Icon emptyIcon =
             new ImageIcon(new BufferedImage(FIELD_SIZE, FIELD_SIZE, BufferedImage.TYPE_INT_ARGB));
-    
-    void moveIcon(Coordinates arg0, Coordinates arg1) {
-        fieldAt(arg1).setIcon(fieldAt(arg0).getIcon());
-        fieldAt(arg0).setIcon(emptyIcon);
-    }
-    
-    private Field fieldAt(Coordinates arg1) {
-        return fields[arg1.getCol()][arg1.getRow()];
-    }
-    
-    void clear() {
-        for (int i = 1; i <= 8; ++i) {
-            for (int j = 1; j <= 8; ++j) {
-                fields[i][j].setIcon(emptyIcon);
-            }
-        }
-        whiteTimeDisplayer.setText("00:00");
-        blackTimeDisplayer.setText("00:00");
-    }
-    
-    void promote(Coordinates moveFrom, Coordinates moveTo, PieceKind promotionChoice, Colors whoseMove) {
-        setIconAt(moveFrom, null, null);
-        setIconAt(moveTo, promotionChoice, whoseMove);
-    }
-    
-    PieceKind getPromotionChoice(Colors color) {
-        PromotionHandler ph = new PromotionHandler(color);
-        extendedBoard.add(ph, 2);
-        try {
-            return ph.choose();
-        } finally {
-            extendedBoard.remove(ph);
-            board.repaint();
-        }
-    }
     
     private class PromotionHandler extends JPanel {
         
