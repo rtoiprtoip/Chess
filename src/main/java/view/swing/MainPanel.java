@@ -66,8 +66,6 @@ class MainPanel extends JPanel {
                 fields[i][j].setIcon(emptyIcon);
             }
         }
-        whiteTimeDisplayer.setText("00:00");
-        blackTimeDisplayer.setText("00:00");
     }
     
     void promote(Coordinates moveFrom, Coordinates moveTo, PieceKind promotionChoice, Colors whoseMove) {
@@ -104,13 +102,13 @@ class MainPanel extends JPanel {
         
         clocks.add(new JLabel());
         
-        whiteTimeDisplayer = new JLabel("00:00", SwingConstants.CENTER);
+        whiteTimeDisplayer = new JLabel("", SwingConstants.CENTER);
         whiteTimeDisplayer.setFont(new Font("Verdana", Font.PLAIN, fontSize));
         whiteTimeDisplayer.setOpaque(true);
         whiteTimeDisplayer.setBackground(Color.WHITE);
         clocks.add(whiteTimeDisplayer);
         
-        blackTimeDisplayer = new JLabel("00:00", SwingConstants.CENTER);
+        blackTimeDisplayer = new JLabel("", SwingConstants.CENTER);
         blackTimeDisplayer.setFont(new Font("Verdana", Font.PLAIN, fontSize));
         blackTimeDisplayer.setOpaque(true);
         blackTimeDisplayer.setBackground(Color.BLACK);

@@ -1,11 +1,16 @@
 package view.swing;
 
+import controller.domain.Time;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.beans.*;
 
+@Service
 class SettingsPanel extends JPanel {
     
     @SuppressWarnings("FieldCanBeLocal")
@@ -15,17 +20,18 @@ class SettingsPanel extends JPanel {
     private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
     private final VetoableChangeSupport vcs = new VetoableChangeSupport(this);
     
-    SettingsPanel() {
+    @Autowired
+    SettingsPanel(Time defaultGameTime) {
         super(new BorderLayout());
         
         int x = 20, y = 6;
         optionsPanel = new JPanel(new GridLayout(x, y));
         
         optionsPanel.add(new JLabel("time per player (mm:ss):"));
-        SettingsInputField timePerPlayer = new SettingsInputField("gameTime", "15:00");
+        SettingsInputField timePerPlayer = new SettingsInputField("gameTime", defaultGameTime.toString());
         timePerPlayer.setHorizontalAlignment(JTextField.CENTER);
         optionsPanel.add(timePerPlayer);
-    
+        
         for (int i = 0; i < 4; ++i) {
             optionsPanel.add(new JLabel());
         }

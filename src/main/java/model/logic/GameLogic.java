@@ -19,7 +19,7 @@ public interface GameLogic {
     
     void setPaused(boolean paused);
     
-    void newGame();
+    void newGame(Time gameTime, Time timeAddedPerMove);
     
     void startOrResume();
     
@@ -34,10 +34,6 @@ public interface GameLogic {
     void promote(PieceKind promotionChoice);
     
     Piece getPieceAt(Coordinates coordinates);
-    
-    void setGameTime(int minutes, int seconds);
-    
-    void setTimeToAddAfterMove(int seconds);
     
     void loadGame(MoveHistory moveHistory);
     
@@ -58,17 +54,4 @@ public interface GameLogic {
      * @throws IllegalStateException, if the service is awaiting promotion choice
      */
     boolean tryToMove(Coordinates moveFrom, Coordinates moveTo) throws SpecialMoveException;
-    
-    Time immutableDefaultGameTime = new Time(15, 0) {
-        
-        @Override
-        public void add(Time timeAdded) {
-            throw new UnsupportedOperationException("This instance is immutable");
-        }
-        
-        @Override
-        public void decrement() {
-            throw new UnsupportedOperationException("This instance is immutable");
-        }
-    };
 }

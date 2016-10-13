@@ -3,6 +3,7 @@ package controller;
 import controller.domain.Colors;
 import controller.domain.Coordinates;
 import controller.domain.PieceKind;
+import controller.domain.Time;
 import controller.exceptions.CastlingException;
 import controller.exceptions.EnPassantException;
 import controller.exceptions.PromotionException;
@@ -23,19 +24,26 @@ import java.beans.PropertyVetoException;
 import java.beans.VetoableChangeListener;
 import java.io.*;
 
-@ComponentScan(basePackages = "model, view")
+@ComponentScan(basePackages = "model, view, config")
 @SpringBootApplication
 public class Main {
     
     private final View view;
     private final GameLogic model;
+    private final Time defaultGameTime;
+    private final Time defaultTimeAddedPerMove;
+    private final SettingsHandler settingsHandler;
     
-    private boolean gameInProgress;
+    volatile private boolean gameInProgress;
     // true, if there's something on the board, false otherwise (no game has started yet or a game was ended
     
-    Main(@NonNull GameLogic model, @NonNull View view) {
+    Main(@NonNull GameLogic model, @NonNull View view, @NonNull Time defaultGameTime,
+         @NonNull Time defaultTimeAddedPerMove) {
         this.model = model;
         this.view = view;
+        this.defaultGameTime = defaultGameTime;
+        this.defaultTimeAddedPerMove = defaultTimeAddedPerMove;
+        settingsHandler = new SettingsHandler();
         
         Thread timeCounter = new Thread() {
             @Override
@@ -43,8 +51,10 @@ public class Main {
             public void run() {
                 synchronized (this) {
                     while (true) {
-                        view.setTime(Colors.WHITE, model.getPlayerTime(Colors.WHITE));
-                        view.setTime(Colors.BLACK, model.getPlayerTime(Colors.BLACK));
+                        if (gameInProgress) {
+                            view.setTime(Colors.WHITE, model.getPlayerTime(Colors.WHITE));
+                            view.setTime(Colors.BLACK, model.getPlayerTime(Colors.BLACK));
+                        }
                         try {
                             wait(50);
                         } catch (InterruptedException ignored) {
@@ -56,11 +66,10 @@ public class Main {
         timeCounter.setDaemon(true);
         timeCounter.start();
         
-        SettingsHandler settingsHandler = new SettingsHandler();
         view.addSettingsListeners(e -> model.setPaused(model.isNotPaused()), settingsHandler, settingsHandler);
         
         view.addNewGameStarter(e -> {
-            model.newGame();
+            model.newGame(settingsHandler.gameTime, settingsHandler.timeAddedPerMove);
             updateChessboard();
             model.startOrResume();
             setGameInProgressToTrueAndUpdateView();
@@ -186,6 +195,8 @@ public class Main {
     private void setGameInProgressToFalseAndUpdateView() {
         gameInProgress = false;
         view.disableOrEnableButtonsCharacteristicForGameInProgressEqualTo(false);
+        view.setTime(Colors.WHITE, settingsHandler.gameTime);
+        view.setTime(Colors.BLACK, settingsHandler.gameTime);
     }
     
     public static void main(String[] args) {
@@ -212,7 +223,16 @@ public class Main {
         }
     }
     
-    private class SettingsHandler implements VetoableChangeListener, PropertyChangeListener {
+    private final class SettingsHandler implements VetoableChangeListener, PropertyChangeListener {
+        
+        Time gameTime = defaultGameTime;
+        Time timeAddedPerMove = defaultTimeAddedPerMove;
+        
+        SettingsHandler() {
+            if (settingsHandler != null) {
+                throw new AssertionError("SettingsHandler is meant to be a singleton");
+            }
+        }
         
         @Override
         public void propertyChange(PropertyChangeEvent evt) {
@@ -222,9 +242,11 @@ public class Main {
             }
             if (evt.getPropertyName().equals("gameTime")) {
                 String[] numbers = ((String) evt.getNewValue()).split(":");
-                model.setGameTime(Integer.parseInt(numbers[0]), Integer.parseInt(numbers[1]));
+                gameTime = new Time(Integer.parseInt(numbers[0]), Integer.parseInt(numbers[1]));
+                view.setTime(Colors.WHITE, gameTime);
+                view.setTime(Colors.BLACK, gameTime);
             } else if (evt.getPropertyName().equals("timeAdded")) {
-                model.setTimeToAddAfterMove(Integer.parseInt((String) evt.getNewValue()));
+                timeAddedPerMove = new Time(0, Integer.parseInt((String) evt.getNewValue()));
             } else {
                 throw new AssertionError();
             }

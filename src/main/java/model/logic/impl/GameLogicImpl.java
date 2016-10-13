@@ -15,6 +15,7 @@ import model.history.MoveHistory;
 import model.history.impl.MoveHistoryImpl;
 import model.logic.GameLogic;
 import model.pieces.Piece;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.EmptyStackException;
@@ -27,20 +28,21 @@ public class GameLogicImpl implements GameLogic {
     private MoveHistory moveHistory;
     private GameState gameState;
     
-    private Time timePerPlayer = new Time(immutableDefaultGameTime);
     private Time timeToAddAfterMove = new Time();
     private final TimeCounter timeCounter = new TimeCounter();
     
     private PromotionMoveData promotionMoveData;
     
-    public GameLogicImpl() {
-        newGame();
+    @Autowired
+    public GameLogicImpl(Time defaultGameTime, Time defaultTimeAddedPerMove) {
+        newGame(defaultGameTime, defaultTimeAddedPerMove);
         timeCounter.start();
     }
     
     @Override
-    public void newGame() {
-        gameState = new GameStateImpl(timePerPlayer);
+    public void newGame(Time gameTime, Time timeAddedPerMove) {
+        gameState = new GameStateImpl(new Time(gameTime));
+        this.timeToAddAfterMove = new Time(timeAddedPerMove);
         moveHistory = new MoveHistoryImpl(gameState);
     }
     
@@ -75,11 +77,6 @@ public class GameLogicImpl implements GameLogic {
     @Override
     public Time getPlayerTime(Colors color) {
         return gameState.getPlayerTime(color);
-    }
-    
-    @Override
-    public void setTimeToAddAfterMove(int timeToAddInSeconds) {
-        timeToAddAfterMove = new Time(0, timeToAddInSeconds);
     }
     
     @Override
@@ -142,10 +139,6 @@ public class GameLogicImpl implements GameLogic {
         return gameState.getWhoseMove();
     }
     
-    @Override
-    public void setGameTime(int minutes, int seconds) {
-        timePerPlayer = new Time(minutes, seconds);
-    }
     
     @SuppressWarnings({"SimplifiableIfStatement", "RedundantIfStatement"})
     private boolean isThisValidMove(Coordinates moveFrom, Coordinates moveTo) throws SpecialMoveException {

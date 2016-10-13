@@ -4,6 +4,7 @@ import controller.domain.Colors;
 import controller.domain.Coordinates;
 import controller.domain.PieceKind;
 import controller.domain.Time;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.swing.*;
@@ -20,7 +21,7 @@ public class SwingView implements view.View {
     
     private JFrame mainFrame;
     private final MainPanel mainPanel;
-    private final SettingsPanel settingsPanel = new SettingsPanel();
+    private final SettingsPanel settingsPanel;
     private final PausePanel pauseScreen = new PausePanel();
     private final LegalStuffDisplayer legalStuffPanel = new LegalStuffDisplayer();
     private BiConsumer<Coordinates, Coordinates> moveConsumer;
@@ -51,51 +52,11 @@ public class SwingView implements view.View {
         addClicksHandlerToFields();
     }
     
-    public SwingView() {
+    @Autowired
+    public SwingView(SettingsPanel settingsPanel) {
+        this.settingsPanel = settingsPanel;
         mainPanel = new MainPanel();
         SwingUtilities.invokeLater(this::createAndShowGUI);
-    }
-    
-    private void addClicksHandlerToFields() {
-        ActionListener clicksHandler = new ActionListener() {
-            
-            Field fieldOne = null;
-            Field fieldTwo = null;
-            
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                assert fieldTwo == null;
-                Field fieldClicked = (Field) e.getSource();
-                if (fieldOne == null) {
-                    fieldOne = fieldClicked;
-                    fieldClicked.setBackground(Color.LIGHT_GRAY);
-                } else {
-                    fieldTwo = fieldClicked;
-                    moveConsumer.accept(fieldOne.getCoordinates(), fieldTwo.getCoordinates());
-                    fieldOne.setBackground(fieldOne.naturalColor());
-                    fieldOne = fieldTwo = null;
-                }
-            }
-        };
-        
-        for (int i = 1; i <= 8; ++i) {
-            for (int j = 1; j <= 8; ++j) {
-                mainPanel.fields[i][j].addActionListener(clicksHandler);
-            }
-        }
-    }
-    
-    private void displayLegalStuff() {
-        mainFrame.getContentPane().remove(mainPanel);
-        mainFrame.getContentPane().add(legalStuffPanel);
-        mainFrame.pack();
-    }
-    
-    private void displayMainView() {
-        mainFrame.getContentPane().removeAll();
-        mainFrame.getContentPane().add(mainPanel);
-        mainFrame.repaint();
-        mainFrame.pack();
     }
     
     @Override
@@ -153,13 +114,6 @@ public class SwingView implements view.View {
         mainPanel.moveIcon(arg0, arg1);
     }
     
-    private void displayPauseScreen() {
-        mainFrame.getContentPane().remove(mainPanel);
-        mainFrame.getContentPane().add(pauseScreen);
-        mainFrame.repaint();
-        mainFrame.pack();
-    }
-    
     @Override
     public void clearGUI() {
         mainPanel.clear();
@@ -192,9 +146,15 @@ public class SwingView implements view.View {
     
     @Override
     public void setTime(Colors color, Time time) {
+        if (mainPanel == null) {
+            return;
+        }
+        
         if (color == Colors.WHITE) {
-            mainPanel.whiteTimeDisplayer.setText(time.toString());
-        } else {
+            if (mainPanel.whiteTimeDisplayer != null) {
+                mainPanel.whiteTimeDisplayer.setText(time.toString());
+            }
+        } else if (mainPanel.blackTimeDisplayer != null) {
             mainPanel.blackTimeDisplayer.setText(time.toString());
         }
     }
@@ -248,14 +208,6 @@ public class SwingView implements view.View {
         return null;
     }
     
-    private void displaySettingsScreen() {
-        settingsPanel.setPreferredSize(mainFrame.getContentPane().getSize());
-        mainFrame.getContentPane().remove(mainPanel);
-        mainFrame.getContentPane().add(settingsPanel);
-        mainFrame.repaint();
-        mainFrame.pack();
-    }
-    
     @Override
     public void addRevertMoveListener(ActionListener actionListener) {
         mainPanel.revertMoveButton.addActionListener(actionListener);
@@ -269,6 +221,63 @@ public class SwingView implements view.View {
     @Override
     public void disableOrEnableButtonsCharacteristicForGameInProgressEqualTo(boolean gameInProgress) {
         mainPanel.disableOrEnableButtonsCharacteristicForGameInProgress(gameInProgress);
+    }
+    
+    private void displayPauseScreen() {
+        mainFrame.getContentPane().remove(mainPanel);
+        mainFrame.getContentPane().add(pauseScreen);
+        mainFrame.repaint();
+        mainFrame.pack();
+    }
+    
+    private void displaySettingsScreen() {
+        settingsPanel.setPreferredSize(mainFrame.getContentPane().getSize());
+        mainFrame.getContentPane().remove(mainPanel);
+        mainFrame.getContentPane().add(settingsPanel);
+        mainFrame.repaint();
+        mainFrame.pack();
+    }
+    
+    private void addClicksHandlerToFields() {
+        ActionListener clicksHandler = new ActionListener() {
+            
+            Field fieldOne = null;
+            Field fieldTwo = null;
+            
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                assert fieldTwo == null;
+                Field fieldClicked = (Field) e.getSource();
+                if (fieldOne == null) {
+                    fieldOne = fieldClicked;
+                    fieldClicked.setBackground(Color.LIGHT_GRAY);
+                } else {
+                    fieldTwo = fieldClicked;
+                    moveConsumer.accept(fieldOne.getCoordinates(), fieldTwo.getCoordinates());
+                    fieldOne.setBackground(fieldOne.naturalColor());
+                    fieldOne = fieldTwo = null;
+                }
+            }
+        };
+        
+        for (int i = 1; i <= 8; ++i) {
+            for (int j = 1; j <= 8; ++j) {
+                mainPanel.fields[i][j].addActionListener(clicksHandler);
+            }
+        }
+    }
+    
+    private void displayLegalStuff() {
+        mainFrame.getContentPane().remove(mainPanel);
+        mainFrame.getContentPane().add(legalStuffPanel);
+        mainFrame.pack();
+    }
+    
+    private void displayMainView() {
+        mainFrame.getContentPane().removeAll();
+        mainFrame.getContentPane().add(mainPanel);
+        mainFrame.repaint();
+        mainFrame.pack();
     }
     
 }
