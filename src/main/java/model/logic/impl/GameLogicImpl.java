@@ -1,19 +1,19 @@
 package model.logic.impl;
 
+import controller.domain.Colors;
 import controller.domain.Coordinates;
 import controller.domain.PieceKind;
+import controller.domain.Time;
 import controller.exceptions.CastlingException;
 import controller.exceptions.EnPassantException;
 import controller.exceptions.PromotionException;
 import controller.exceptions.SpecialMoveException;
-import controller.domain.Colors;
-import controller.domain.Time;
-import model.pieces.Piece;
 import model.gameState.GameState;
 import model.gameState.impl.GameStateImpl;
 import model.history.MoveHistory;
 import model.history.impl.MoveHistoryImpl;
 import model.logic.GameLogic;
+import model.pieces.Piece;
 import org.springframework.stereotype.Service;
 
 import java.util.EmptyStackException;
@@ -58,8 +58,12 @@ public class GameLogicImpl implements GameLogic {
             if (!isThisValidMoveForgetCheckAndTurn(moveFrom, moveTo)) {
                 return false;
             }
+    
+            if (checkIfKingWillBeCheckedAfterMove(moveFrom, moveTo)) {
+                return false;
+            }
             
-            return checkIfKingWillBeCheckedAfterMove(moveFrom, moveTo);
+            return true;
             
         } catch (EnPassantException e) {
             if (authorizeEnPassant(moveFrom, moveTo)) {
@@ -74,7 +78,7 @@ public class GameLogicImpl implements GameLogic {
                 return false;
             }
         } catch (PromotionException e) {
-            return checkIfKingWillBeCheckedAfterMove(moveFrom, moveTo);
+            return !checkIfKingWillBeCheckedAfterMove(moveFrom, moveTo);
         }
     }
     
@@ -195,7 +199,7 @@ public class GameLogicImpl implements GameLogic {
             setPieceAt(moveTo, one);
             setPieceAt(moveFrom, null);
             if (checkIfKingIsChecked(gameState.getWhoseMove())) {
-                return false;
+                return true;
             }
         } finally {
             //undo virtual move
@@ -203,7 +207,7 @@ public class GameLogicImpl implements GameLogic {
             setPieceAt(moveTo, two);
         }
         
-        return true;
+        return false;
     }
     
     private boolean isThisValidMoveForgetCheckAndTurn(Coordinates moveFrom, Coordinates moveTo)
