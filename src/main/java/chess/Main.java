@@ -97,7 +97,7 @@ public class Main {
         });
         
         view.addGameSaver(e -> {
-            validateThatGameInProgessHasValue(true);
+            validateThatGameInProgressHasValue(true);
             
             File outputFile = view.getFileToSaveIn();
             if (outputFile == null) {
@@ -116,7 +116,7 @@ public class Main {
         });
         
         view.addLogSaver(e -> {
-            validateThatGameInProgessHasValue(true);
+            validateThatGameInProgressHasValue(true);
             
             File outputFile = view.getFileToSaveIn();
             if (outputFile == null) {
@@ -133,13 +133,13 @@ public class Main {
         });
         
         view.addPauseListener(e -> {
-            validateThatGameInProgessHasValue(true);
+            validateThatGameInProgressHasValue(true);
             
             model.setPaused(model.isNotPaused());
         });
         
         view.addEndGameListener(e -> {
-            validateThatGameInProgessHasValue(true);
+            validateThatGameInProgressHasValue(true);
             
             model.endGame();
             view.clearGUI();
@@ -149,7 +149,7 @@ public class Main {
         view.addLegalStuffDisplayer(e -> model.setPaused(model.isNotPaused()));
         
         view.addRevertMoveListener(e -> {
-            validateThatGameInProgessHasValue(true);
+            validateThatGameInProgressHasValue(true);
             
             System.err.println("revert");
             model.revertMove();
@@ -158,7 +158,7 @@ public class Main {
         });
         
         view.addMoveHandler((moveFrom, moveTo) -> new Thread(() -> {
-            validateThatGameInProgessHasValue(true);
+            validateThatGameInProgressHasValue(true);
             
             boolean moveSuccessful = true;
             try {
@@ -215,9 +215,10 @@ public class Main {
                 }
             }
         }
+        view.removePromotionChoicePanelIfExists();
     }
     
-    private void validateThatGameInProgessHasValue(boolean expectedValue) {
+    private void validateThatGameInProgressHasValue(boolean expectedValue) {
         if (gameInProgress != expectedValue) {
             throw new IllegalStateException("This action is not permitted right now");
         }
@@ -236,7 +237,7 @@ public class Main {
         
         @Override
         public void propertyChange(PropertyChangeEvent evt) {
-            validateThatGameInProgessHasValue(false);
+            validateThatGameInProgressHasValue(false);
             if (evt.getPropertyName() == null) {
                 return;
             }
@@ -254,7 +255,7 @@ public class Main {
         
         @Override
         public void vetoableChange(PropertyChangeEvent evt) throws PropertyVetoException {
-            validateThatGameInProgessHasValue(false);
+            validateThatGameInProgressHasValue(false);
             String newVal = ((String) evt.getNewValue()).trim();
             if (evt.getPropertyName().equals("gameTime")) {
                 if (!newVal.matches("\\d+:[0-5]\\d")) {

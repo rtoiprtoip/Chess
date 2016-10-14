@@ -14,9 +14,10 @@ import java.net.URL;
 
 class MainPanel extends JPanel {
     
-    private JLayeredPane extendedBoard;
+    private ExtendedBoard extendedBoard;
     // will use two layers, one for displaying board, second for promotion choice
     
+    @SuppressWarnings("FieldCanBeLocal")
     private JPanel board;
     Field[][] fields;
     
@@ -75,12 +76,12 @@ class MainPanel extends JPanel {
     
     PieceKind getPromotionChoice(Colors color) {
         PromotionHandler ph = new PromotionHandler(color);
-        extendedBoard.add(ph, 2);
+        extendedBoard.addToTopLayer(ph);
         try {
             return ph.choose();
         } finally {
-            extendedBoard.remove(ph);
-            board.repaint();
+            extendedBoard.removeComponentFromTopLayer();
+            extendedBoard.repaint();
         }
     }
     
@@ -91,6 +92,18 @@ class MainPanel extends JPanel {
         revertMoveButton.setEnabled(gameInProgress);
         endGameButton.setEnabled(gameInProgress);
         pauseButton.setEnabled(gameInProgress);
+    }
+    
+    void removePromotionChoicePanelIfExists() {
+        extendedBoard.removeComponentFromTopLayerIfExists();
+    }
+    
+    @Override
+    public void repaint() {
+        super.repaint();
+        if (extendedBoard != null) {
+            extendedBoard.repaint();
+        }
     }
     
     private void initializeClocks() {
@@ -143,6 +156,7 @@ class MainPanel extends JPanel {
         toolbar.add(pauseButton);
         
         endGameButton = new JButton("End");
+        endGameButton.addActionListener(e -> removePromotionChoicePanelIfExists());
         toolbar.add(endGameButton);
         
         toolbar.addSeparator();
@@ -196,10 +210,10 @@ class MainPanel extends JPanel {
         
         board.setPreferredSize(new Dimension(CHESSBOARD_SIZE, CHESSBOARD_SIZE));
         
-        extendedBoard = new JLayeredPane();
+        extendedBoard = new ExtendedBoard();
         extendedBoard.setPreferredSize(new Dimension(CHESSBOARD_SIZE, CHESSBOARD_SIZE));
         board.setBounds(0, 0, CHESSBOARD_SIZE, CHESSBOARD_SIZE);
-        extendedBoard.add(board, 1);
+        extendedBoard.addToBottomLayer(board);
     }
     
     private Icon getScaledIcon(PieceKind pieceKind, Colors color) {
@@ -274,4 +288,5 @@ class MainPanel extends JPanel {
         }
         
     }
+    
 }

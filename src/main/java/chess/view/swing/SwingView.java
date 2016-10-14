@@ -224,6 +224,12 @@ public class SwingView implements View {
         mainPanel.disableOrEnableButtonsCharacteristicForGameInProgress(gameInProgress);
     }
     
+    @Override
+    public void removePromotionChoicePanelIfExists() {
+        mainPanel.removePromotionChoicePanelIfExists();
+        
+    }
+    
     private void displayPauseScreen() {
         mainFrame.getContentPane().remove(mainPanel);
         mainFrame.getContentPane().add(pauseScreen);
@@ -271,6 +277,7 @@ public class SwingView implements View {
     private void displayLegalStuff() {
         mainFrame.getContentPane().remove(mainPanel);
         mainFrame.getContentPane().add(legalStuffPanel);
+        mainFrame.repaint();
         mainFrame.pack();
     }
     
@@ -278,6 +285,7 @@ public class SwingView implements View {
         mainFrame.getContentPane().removeAll();
         mainFrame.getContentPane().add(mainPanel);
         mainFrame.repaint();
+        mainPanel.repaint();
         mainFrame.pack();
     }
     

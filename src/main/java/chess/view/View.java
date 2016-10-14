@@ -54,4 +54,6 @@ public interface View {
     void addLogSaver(ActionListener actionListener);
     
     void disableOrEnableButtonsCharacteristicForGameInProgressEqualTo(boolean gameInProgress);
+    
+    void removePromotionChoicePanelIfExists();
 }

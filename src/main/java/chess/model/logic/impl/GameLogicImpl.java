@@ -8,13 +8,13 @@ import chess.domain.exceptions.CastlingException;
 import chess.domain.exceptions.EnPassantException;
 import chess.domain.exceptions.PromotionException;
 import chess.domain.exceptions.SpecialMoveException;
-import lombok.Value;
 import chess.model.gameState.GameState;
 import chess.model.gameState.impl.GameStateImpl;
 import chess.model.history.MoveHistory;
 import chess.model.history.impl.MoveHistoryImpl;
 import chess.model.logic.GameLogic;
 import chess.model.pieces.Piece;
+import lombok.Value;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -72,6 +72,7 @@ public class GameLogicImpl implements GameLogic {
     @Override
     public void endGame() {
         gameState.endGame();
+        promotionMoveData = null;
     }
     
     @Override
@@ -83,6 +84,7 @@ public class GameLogicImpl implements GameLogic {
     public void loadGame(MoveHistory moveHistory) {
         this.moveHistory = moveHistory;
         gameState = moveHistory.peek();
+        promotionMoveData = null;
     }
     
     @Override

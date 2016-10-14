@@ -22,7 +22,7 @@ class LegalStuffDisplayer extends JPanel {
             "appropriate credit"
             + newLine + " to original creators and distribute your contributions under the same license.";
     
-    public LegalStuffDisplayer() {
+    LegalStuffDisplayer() {
         super();
         this.setLayout(new BorderLayout());
         this.add(new JTextArea(legalStuff), BorderLayout.CENTER);
