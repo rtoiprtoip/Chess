@@ -21,13 +21,13 @@ class SettingsPanel extends JPanel {
     private final VetoableChangeSupport vcs = new VetoableChangeSupport(this);
     
     @Autowired
-    SettingsPanel(Time defaultGameTime) {
+    SettingsPanel(Time defaultGameTime, Time defaultTimeAddedPerMove) {
         super(new BorderLayout());
         
         int x = 20, y = 6;
         optionsPanel = new JPanel(new GridLayout(x, y));
         
-        optionsPanel.add(new JLabel("time per player (mm:ss):"));
+        optionsPanel.add(new JLabel("time per player:"));
         SettingsInputField timePerPlayer = new SettingsInputField("gameTime", defaultGameTime.toString());
         timePerPlayer.setHorizontalAlignment(JTextField.CENTER);
         optionsPanel.add(timePerPlayer);
@@ -36,8 +36,8 @@ class SettingsPanel extends JPanel {
             optionsPanel.add(new JLabel());
         }
         
-        optionsPanel.add(new JLabel("time added per move (s)"));
-        SettingsInputField timeAddedPerMove = new SettingsInputField("timeAdded", "00");
+        optionsPanel.add(new JLabel("time added per move"));
+        SettingsInputField timeAddedPerMove = new SettingsInputField("timeAdded", defaultTimeAddedPerMove.toString());
         timeAddedPerMove.setHorizontalAlignment(JTextField.CENTER);
         optionsPanel.add(timeAddedPerMove);
         
@@ -60,12 +60,14 @@ class SettingsPanel extends JPanel {
     private class SettingsInputField extends JTextField implements FocusListener {
         
         private String propertyName = "";
-        private final String value = "";
+        private String value = "";
         
-        public SettingsInputField(String propertyName, String defaultText) {
+        SettingsInputField(String propertyName, String defaultText) {
             super(defaultText);
             this.addFocusListener(this);
+            
             this.propertyName = propertyName;
+            this.value = defaultText;
         }
         
         @Override
@@ -82,8 +84,10 @@ class SettingsPanel extends JPanel {
                 okButton.setEnabled(false);
                 return;
             }
+            
             pcs.firePropertyChange(propertyName, value, newValue);
             setText(newValue);
+            value = newValue;
             this.setBackground(Color.WHITE);
             okButton.setEnabled(true);
         }
