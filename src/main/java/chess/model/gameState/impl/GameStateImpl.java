@@ -164,7 +164,8 @@ public class GameStateImpl implements GameState {
     
     @Override
     public void addPlayerTime(Time timeToAdd) {
-        Time whoseTime = (whoseMove == Colors.WHITE) ? whiteTime : blackTime;
+        Time whoseTime = (whoseMove == Colors.WHITE) ? blackTime : whiteTime;
+        // it's not a bug, this function is called after move completes and whoseMove toggles
         whoseTime.add(timeToAdd);
     }
     
