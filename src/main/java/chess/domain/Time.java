@@ -10,24 +10,8 @@ public class Time implements Serializable, Cloneable {
     private Duration timeRemaining;
     public static final Duration precision = Duration.ofMillis(10);
     
-    public Time(int minutes, int seconds) {
-        timeRemaining = Duration.ofMinutes(minutes).plusSeconds(seconds);
-    }
-    
-    public Time() {
-        this(0, 0);
-    }
-    
     public Time(Time other) {
-        this(other.timeRemaining);
-    }
-    
-    private Time(Duration duration) {
-        this.timeRemaining = duration;
-    }
-    
-    private Time(int hours, int minutes, int seconds) {
-        this(60 * hours + minutes, seconds);
+        this.timeRemaining = other.timeRemaining;
     }
     
     public static Time fromString(String s) {
@@ -54,6 +38,10 @@ public class Time implements Serializable, Cloneable {
         }
         
         return new Time(timeComponents[0], timeComponents[1], timeComponents[2]);
+    }
+    
+    private Time(int hours, int minutes, int seconds) {
+        timeRemaining = Duration.ofHours(hours).plusMinutes(minutes).plusSeconds(seconds);
     }
     
     public void add(Time timeAdded) {

@@ -28,7 +28,7 @@ public class GameLogicImpl implements GameLogic {
     private MoveHistory moveHistory;
     private GameState gameState;
     
-    private Time timeToAddAfterMove = new Time();
+    private Time timeToAddAfterMove;
     private final TimeCounter timeCounter = new TimeCounter();
     
     private PromotionMoveData promotionMoveData;
