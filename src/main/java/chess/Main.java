@@ -8,15 +8,15 @@ import chess.domain.exceptions.CastlingException;
 import chess.domain.exceptions.EnPassantException;
 import chess.domain.exceptions.PromotionException;
 import chess.domain.exceptions.SpecialMoveException;
-import lombok.NonNull;
 import chess.model.history.MoveHistory;
 import chess.model.history.impl.MoveHistoryImpl;
 import chess.model.logic.GameLogic;
 import chess.model.pieces.Piece;
+import chess.view.View;
+import lombok.NonNull;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.annotation.ComponentScan;
-import chess.view.View;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -158,7 +158,6 @@ public class Main {
         });
         
         view.addMoveHandler((moveFrom, moveTo) -> new Thread(() -> {
-            validateThatGameInProgressHasValue(true);
             
             boolean moveSuccessful = true;
             try {
@@ -242,12 +241,11 @@ public class Main {
                 return;
             }
             if (evt.getPropertyName().equals("gameTime")) {
-                String[] numbers = ((String) evt.getNewValue()).split(":");
-                gameTime = new Time(Integer.parseInt(numbers[0]), Integer.parseInt(numbers[1]));
+                gameTime = Time.fromString((String) evt.getNewValue());
                 view.setTime(Colors.WHITE, gameTime);
                 view.setTime(Colors.BLACK, gameTime);
             } else if (evt.getPropertyName().equals("timeAdded")) {
-                timeAddedPerMove = new Time(0, Integer.parseInt((String) evt.getNewValue()));
+                timeAddedPerMove = Time.fromString((String) evt.getNewValue());
             } else {
                 throw new AssertionError();
             }
@@ -256,14 +254,11 @@ public class Main {
         @Override
         public void vetoableChange(PropertyChangeEvent evt) throws PropertyVetoException {
             validateThatGameInProgressHasValue(false);
-            String newVal = ((String) evt.getNewValue()).trim();
-            if (evt.getPropertyName().equals("gameTime")) {
-                if (!newVal.matches("\\d+:[0-5]\\d")) {
-                    throw new PropertyVetoException("Invalid format, use mm:ss", evt);
-                }
-            } else if (evt.getPropertyName().equals("timeAdded")) {
-                if (!((String) evt.getNewValue()).trim().matches("\\d+")) {
-                    throw new PropertyVetoException("invalid format", evt);
+            if (evt.getPropertyName().equals("gameTime") || evt.getPropertyName().equals("timeAdded")) {
+                try {
+                    Time.fromString((String) evt.getNewValue());
+                } catch (NumberFormatException e) {
+                    throw new PropertyVetoException("Invalid format", evt);
                 }
             } else {
                 throw new AssertionError();
