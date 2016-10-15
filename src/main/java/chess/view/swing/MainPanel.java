@@ -3,6 +3,8 @@ package chess.view.swing;
 import chess.domain.Colors;
 import chess.domain.Coordinates;
 import chess.domain.PieceKind;
+import chess.view.image.ImageLoadingService;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.swing.*;
 import javax.swing.border.CompoundBorder;
@@ -10,9 +12,11 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.net.URL;
 
+@org.springframework.stereotype.Component
 class MainPanel extends JPanel {
+    
+    private final ImageLoadingService imageService;
     
     private ExtendedBoard extendedBoard;
     // will use two layers, one for displaying board, second for promotion choice
@@ -28,7 +32,9 @@ class MainPanel extends JPanel {
     private JPanel clocks;
     JLabel whiteTimeDisplayer, blackTimeDisplayer;
     
-    MainPanel() {
+    @Autowired
+    MainPanel(ImageLoadingService imageService) {
+        this.imageService = imageService;
         initializeBoard();
         initializeToolbar();
         initializeClocks();
@@ -39,26 +45,21 @@ class MainPanel extends JPanel {
         this.add(clocks, BorderLayout.LINE_END);
     }
     
-    void setIconAt(Coordinates c, PieceKind pieceKind, Colors color) {
-        if (pieceKind == null && color != null) {
-            throw new AssertionError();
-        }
-        if (pieceKind != null && color == null) {
-            throw new AssertionError();
+    void setIconAt(Coordinates c, Image image) {
+        
+        Icon icon;
+        if (image != null) {
+            icon = scaleImageToFieldSize(image);
+        } else {
+            icon = emptyIcon;
         }
         
-        if (pieceKind == null) {
-            fields[c.getCol()][c.getRow()].setIcon(emptyIcon);
-            return;
-        }
-        
-        Icon icon = getScaledIcon(pieceKind, color);
         fields[c.getCol()][c.getRow()].setIcon(icon);
     }
     
-    void moveIcon(Coordinates arg0, Coordinates arg1) {
-        fieldAt(arg1).setIcon(fieldAt(arg0).getIcon());
-        fieldAt(arg0).setIcon(emptyIcon);
+    void moveIcon(Coordinates moveFrom, Coordinates moveTo) {
+        fieldAt(moveTo).setIcon(fieldAt(moveFrom).getIcon());
+        fieldAt(moveFrom).setIcon(emptyIcon);
     }
     
     void clear() {
@@ -69,9 +70,9 @@ class MainPanel extends JPanel {
         }
     }
     
-    void promote(Coordinates moveFrom, Coordinates moveTo, PieceKind promotionChoice, Colors whoseMove) {
-        setIconAt(moveFrom, null, null);
-        setIconAt(moveTo, promotionChoice, whoseMove);
+    void promote(Coordinates moveFrom, Coordinates moveTo, Image pieceImage) {
+        fieldAt(moveFrom).setIcon(emptyIcon);
+        setIconAt(moveTo, pieceImage);
     }
     
     PieceKind getPromotionChoice(Colors color) {
@@ -216,23 +217,6 @@ class MainPanel extends JPanel {
         extendedBoard.addToBottomLayer(board);
     }
     
-    private Icon getScaledIcon(PieceKind pieceKind, Colors color) {
-        
-        String fileName = (color.toString() + "_" + pieceKind.toString() + ".svg").toLowerCase();
-        
-        Image image = getImageFromResources(fileName);
-        if (image != null) {
-            return scaleImageToFieldSize(image);
-        }
-        
-        throw new AssertionError("Image of " + color + " " + pieceKind + " not found");
-    }
-    
-    private Image getImageFromResources(String fileName) {
-        URL jarUrl = Thread.currentThread().getContextClassLoader().getResource("icons/" + fileName);
-        return Toolkit.getDefaultToolkit().getImage(jarUrl);
-    }
-    
     private Icon scaleImageToFieldSize(Image image) {
         return new ImageIcon(image.getScaledInstance(FIELD_SIZE, FIELD_SIZE, java.awt.Image.SCALE_SMOOTH));
     }
@@ -260,7 +244,7 @@ class MainPanel extends JPanel {
             
             for (int i = 0; i < 4; ++i) {
                 Field f = new Field(0, 0);
-                f.setIcon(getScaledIcon(choiceOptions[i], whoseMove));
+                f.setIcon(scaleImageToFieldSize(imageService.getPieceImageFromResources(choiceOptions[i], whoseMove)));
                 final int i1 = i;
                 f.addActionListener(e -> {
                     synchronized (PromotionHandler.this) {

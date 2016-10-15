@@ -5,6 +5,7 @@ import chess.domain.Coordinates;
 import chess.domain.PieceKind;
 import chess.domain.Time;
 import chess.view.View;
+import chess.view.image.ImageLoadingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -26,6 +27,16 @@ public class SwingView implements View {
     private final PausePanel pauseScreen = new PausePanel();
     private final LegalStuffDisplayer legalStuffPanel = new LegalStuffDisplayer();
     private BiConsumer<Coordinates, Coordinates> moveConsumer;
+    
+    private final ImageLoadingService imageService;
+    
+    @Autowired
+    public SwingView(MainPanel mainPanel, SettingsPanel settingsPanel, ImageLoadingService imageService) {
+        this.settingsPanel = settingsPanel;
+        this.imageService = imageService;
+        this.mainPanel = mainPanel;
+        SwingUtilities.invokeLater(this::createAndShowGUI);
+    }
     
     private void createAndShowGUI() {
         mainFrame = new JFrame("Chess");
@@ -51,13 +62,6 @@ public class SwingView implements View {
         legalStuffPanel.okButton.addActionListener(mainViewDisplayer);
         
         addClicksHandlerToFields();
-    }
-    
-    @Autowired
-    public SwingView(SettingsPanel settingsPanel) {
-        this.settingsPanel = settingsPanel;
-        mainPanel = new MainPanel();
-        SwingUtilities.invokeLater(this::createAndShowGUI);
     }
     
     @Override
@@ -102,7 +106,8 @@ public class SwingView implements View {
     
     @Override
     public void setIconAt(Coordinates c, PieceKind pieceKind, Colors color) {
-        mainPanel.setIconAt(c, pieceKind, color);
+        Image image = imageService.getPieceImageFromResources(pieceKind, color);
+        mainPanel.setIconAt(c, image);
     }
     
     @Override
@@ -132,7 +137,7 @@ public class SwingView implements View {
     @Override
     public void enPassant(Coordinates from, Coordinates to) {
         mainPanel.moveIcon(from, to);
-        mainPanel.setIconAt(Coordinates.of(to.getCol(), from.getRow()), null, null);
+        mainPanel.setIconAt(Coordinates.of(to.getCol(), from.getRow()), null);
     }
     
     @Override
@@ -142,7 +147,8 @@ public class SwingView implements View {
     
     @Override
     public void promote(Coordinates moveFrom, Coordinates moveTo, PieceKind promotionChoice, Colors color) {
-        mainPanel.promote(moveFrom, moveTo, promotionChoice, color);
+        Image image = imageService.getPieceImageFromResources(promotionChoice, color);
+        mainPanel.promote(moveFrom, moveTo, image);
     }
     
     @Override
