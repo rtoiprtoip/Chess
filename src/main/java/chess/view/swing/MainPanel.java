@@ -43,6 +43,8 @@ class MainPanel extends JPanel {
         this.add(toolbar, BorderLayout.PAGE_START);
         this.add(extendedBoard, BorderLayout.LINE_START);
         this.add(clocks, BorderLayout.LINE_END);
+    
+        ToolTipManager.sharedInstance().setInitialDelay(0);
     }
     
     void setIconAt(Coordinates c, Image image) {
@@ -88,11 +90,31 @@ class MainPanel extends JPanel {
     
     void disableOrEnableButtonsCharacteristicForGameInProgress(boolean gameInProgress) {
         settingsButton.setEnabled(!gameInProgress);
+        if (gameInProgress) {
+            settingsButton.setToolTipText("This is only allowed when the game is finished");
+        } else {
+            settingsButton.setToolTipText(null);
+        }
+        
         saveButton.setEnabled(gameInProgress);
         saveLogButton.setEnabled(gameInProgress);
         revertMoveButton.setEnabled(gameInProgress);
         endGameButton.setEnabled(gameInProgress);
         pauseButton.setEnabled(gameInProgress);
+        if (gameInProgress) {
+            saveButton.setToolTipText(null);
+            saveLogButton.setToolTipText(null);
+            revertMoveButton.setToolTipText(null);
+            endGameButton.setToolTipText(null);
+            pauseButton.setToolTipText(null);
+        } else {
+            String message = "This is only allowed while the game is in progress";
+            saveButton.setToolTipText(message);
+            saveLogButton.setToolTipText(message);
+            revertMoveButton.setToolTipText(message);
+            endGameButton.setToolTipText(message);
+            pauseButton.setToolTipText(message);
+        }
     }
     
     void removePromotionChoicePanelIfExists() {
