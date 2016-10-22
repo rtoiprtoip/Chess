@@ -2,9 +2,9 @@ package chess.model.history.impl;
 
 import chess.domain.Coordinates;
 import chess.domain.PieceKind;
-import lombok.NonNull;
 import chess.model.gameState.GameState;
 import chess.model.history.MoveHistory;
+import lombok.NonNull;
 
 import java.util.Deque;
 import java.util.EmptyStackException;
@@ -24,7 +24,7 @@ public class MoveHistoryImpl implements MoveHistory {
     
     @Override
     public GameState pop() {
-        if (gameStateStack.isEmpty()) {
+        if (gameStateStack.size() < 2) {
             throw new EmptyStackException();
         }
         moveLog.removeLast();
