@@ -2,8 +2,7 @@ Chess interface for two people
 
 To start the application, run the chess.Main class.
 
-If you don't want to build the application, an executable .jar file is available:
-drive.google.com/file/d/0B-Zgoy0KySiwa0NBTmhFMkJmaFE/view?usp=sharing
+If you don't want to build the application, an executable .jar file is available in out/artifacts/chess_jar.
 
 License info:
 Piece icons are property of Cburnett and they are licensed under CC-BY-SA 3.0 license (see creativecommons.org).

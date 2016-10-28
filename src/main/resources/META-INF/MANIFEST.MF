@@ -1,3 +1,2 @@
 Manifest-Version: 1.0
-chess.Main-Class: chess.Main
-
+Main-Class: chess.Main
